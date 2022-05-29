@@ -7,15 +7,22 @@ final class AssociatedTypeTests: XCTestCase {
     func testAssociatedTypeDeclaration() throws {
         let source = #"""
         associatedtype T
+        protocol SampleProtocol {
+            associatedtype S
+        }
         """#
 
         let declarations = try SyntaxParser.declarations(of: AssociatedType.self, source: source)
-        XCTAssertEqual(declarations.count, 1)
-        let associatedType = declarations.first!
+        XCTAssertEqual(declarations.count, 2)
 
-        XCTAssertEqual(associatedType.attributes.count, 0)
-        XCTAssertEqual(associatedType.name, "T")
-        XCTAssertEqual(associatedType.description, "associatedtype T")
+        XCTAssertEqual(declarations[0].attributes.count, 0)
+        XCTAssertEqual(declarations[0].name, "T")
+        XCTAssertEqual(declarations[0].description, "associatedtype T")
+        XCTAssertNil(declarations[0].parent)
+        XCTAssertEqual(declarations[1].attributes.count, 0)
+        XCTAssertEqual(declarations[1].name, "S")
+        XCTAssertEqual(declarations[1].description, "associatedtype S")
+        XCTAssertEqual(declarations[1].parent, "SampleProtocol")
     }
 
     static var allTests = [

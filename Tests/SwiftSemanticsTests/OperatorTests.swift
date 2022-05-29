@@ -18,7 +18,26 @@ final class OperatorTests: XCTestCase {
         XCTAssertEqual(declaration.modifiers.first?.name, "prefix")
         XCTAssertEqual(declaration.kind, .prefix)
         XCTAssertEqual(declaration.name, "+++")
-//        XCTAssertEqual(declaration.description, source)
+        XCTAssertNil(declaration.parent)
+    }
+
+    func testSimpleOperatorWithParent() throws {
+        let source = #"""
+        struct Sample {
+            prefix operator +++
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Operator.self, source: source)
+        XCTAssertEqual(declarations.count, 1)
+        let declaration = declarations.first!
+
+        XCTAssert(declaration.attributes.isEmpty)
+        XCTAssertEqual(declaration.modifiers.count, 1)
+        XCTAssertEqual(declaration.modifiers.first?.name, "prefix")
+        XCTAssertEqual(declaration.kind, .prefix)
+        XCTAssertEqual(declaration.name, "+++")
+        XCTAssertEqual(declaration.parent, "Sample")
     }
 
     static var allTests = [

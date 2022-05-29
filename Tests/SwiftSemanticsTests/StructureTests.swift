@@ -6,19 +6,21 @@ import XCTest
 final class StructureTests: XCTestCase {
     func testNestedStructureDeclarations() throws {
         let source = #"""
-        struct A { struct B { struct C {} } }
+        struct A { struct B { struct C { } } }
         """#
 
         let declarations = try SyntaxParser.declarations(of: Structure.self, source: source)
         XCTAssertEqual(declarations.count, 3)
 
         XCTAssertEqual(declarations[0].name, "A")
+        XCTAssertNil(declarations[0].parent)
         XCTAssertEqual(declarations[1].name, "B")
+        XCTAssertEqual(declarations[1].parent, "A")
         XCTAssertEqual(declarations[2].name, "C")
+        XCTAssertEqual(declarations[2].parent, "B")
     }
 
     static var allTests = [
         ("testNestedStructureDeclarations", testNestedStructureDeclarations),
     ]
 }
-

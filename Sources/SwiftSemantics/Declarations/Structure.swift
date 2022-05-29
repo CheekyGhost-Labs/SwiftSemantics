@@ -57,6 +57,9 @@ public struct Structure: Declaration, Hashable, Codable {
      ```
      */
     public let genericRequirements: [GenericRequirement]
+
+    /// The parent entity that owns the struct.
+    public let parent: String?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -71,6 +74,8 @@ extension Structure: ExpressibleBySyntax {
         inheritance = node.inheritanceClause?.inheritedTypeCollection.map { $0.typeName.description.trimmed } ?? []
         genericParameters = node.genericParameterClause?.genericParameterList.map { GenericParameter($0) } ?? []
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
+        // Assign parent
+        parent = node.resolveParentType()
     }
 }
 

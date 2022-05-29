@@ -21,6 +21,9 @@ public struct ConditionalCompilationBlock: Declaration, Hashable, Codable {
      */
     public let branches: [Branch]
 
+    /// The parent entity that owns the conditional block..
+    public let parent: String?
+
     /// A conditional compilation block branch.
     public enum Branch: Hashable {
         /// An `#if` branch.
@@ -81,6 +84,8 @@ extension ConditionalCompilationBlock: ExpressibleBySyntax {
     /// Creates an instance initialized with the given syntax node.
     public init(_ node: IfConfigDeclSyntax) {
         branches = node.clauses.map { Branch($0) }
+        // Assign parent
+        parent = node.resolveParentType()
     }
 }
 

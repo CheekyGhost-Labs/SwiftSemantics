@@ -23,6 +23,9 @@ public struct Variable: Declaration, Hashable, Codable {
     /// The variable or property accessors.
     public let accessors: [Accessor]
 
+    /// The parent entity that owns the variable.
+    public let parent: String?
+
     /// A computed variable or computed property accessor.
     public struct Accessor: Hashable, Codable {
         /// The kind of accessor (`get` or `set`).
@@ -71,6 +74,8 @@ extension Variable: ExpressibleBySyntax {
         typeAnnotation = node.typeAnnotation?.type.description.trimmed
         initializedValue = node.initializer?.value.description.trimmed
         accessors = Accessor.accessors(from: node.accessor?.as(AccessorBlockSyntax.self))
+        // Assign parent
+        self.parent = node.resolveParentType()
     }
 }
 

@@ -45,6 +45,9 @@ public struct Typealias: Declaration, Hashable, Codable {
      ```
      */
     public let genericRequirements: [GenericRequirement]
+
+    /// The parent entity that owns the typealias.
+    public let parent: String?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -59,6 +62,8 @@ extension Typealias: ExpressibleBySyntax {
         initializedType = node.initializer?.value.description.trimmed
         genericParameters = node.genericParameterClause?.genericParameterList.map { GenericParameter($0) } ?? []
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
+        // Assign parent
+        parent = node.resolveParentType()
     }
 }
 

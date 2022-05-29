@@ -6,9 +6,7 @@ import XCTest
 final class InitializerTests: XCTestCase {
     func testInitializerDeclaration() throws {
         let source = #"""
-        public class Person {
-            public init?(names: String...) throws
-        }
+        public class Person { public init?(names: String...) throws }
         """#
 
         let declarations = try SyntaxParser.declarations(of: Initializer.self, source: source)
@@ -23,6 +21,7 @@ final class InitializerTests: XCTestCase {
         XCTAssertEqual(initializer.parameters[0].type, "String")
         XCTAssertTrue(initializer.parameters[0].variadic)
         XCTAssertEqual(initializer.throwsOrRethrowsKeyword, "throws")
+        XCTAssertEqual(initializer.parent, "Person")
     }
 
     static var allTests = [

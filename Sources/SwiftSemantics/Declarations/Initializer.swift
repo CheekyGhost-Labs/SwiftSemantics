@@ -48,6 +48,9 @@ public struct Initializer: Declaration, Hashable, Codable {
      ```
      */
     public let genericRequirements: [GenericRequirement]
+
+    /// The parent entity that owns the initializer.
+    public let parent: String?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -63,6 +66,8 @@ extension Initializer: ExpressibleBySyntax {
         parameters = node.parameters.parameterList.map { Function.Parameter($0) }
         throwsOrRethrowsKeyword = node.throwsOrRethrowsKeyword?.description.trimmed
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
+        // Assign parent
+        parent = node.resolveParentType()
     }
 }
 
