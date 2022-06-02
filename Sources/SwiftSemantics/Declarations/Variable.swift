@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 /// A declaration for a property or a top-level variable or constant.
@@ -46,6 +47,33 @@ public struct Variable: Declaration, Hashable, Codable {
         /// The kind of accessor.
         public let kind: Kind?
     }
+
+    // MARK: - Convenience
+
+    /// Will return any modifiers joined by a whitespace and then the `keyword`
+    public let modifiersWithKeyword: String
+
+    /// Bool whether the variable has a setter available
+    public let hasSetter: Bool
+
+    /// Will return a `Bool` flag indicating if the type annotation contains the optional indicator `?`
+    public let isOptional: Bool
+
+    /// Will return `true` when the `type` is a closure.
+    public let isClosure: Bool
+
+    /// WIll return the input `typeAnnotation` for the closure. Returns an empty string if no input is found.
+    public let closureInput: String
+
+    /// WIll return the result `typeAnnotation` for the closure. Returns an empty string if no result is found.
+    public let closureResult: String
+
+    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
+    public let isClosureInputVoid: Bool
+
+    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
+    public let isClosureResultVoid: Bool
+
 }
 
 // MARK: - ExpressibleBySyntax
@@ -76,6 +104,79 @@ extension Variable: ExpressibleBySyntax {
         accessors = Accessor.accessors(from: node.accessor?.as(AccessorBlockSyntax.self))
         // Assign parent
         self.parent = node.resolveParentType()
+        self.hasSetter = accessors.contains(where: { $0.kind == .set })
+        if let annotation = typeAnnotation {
+            self.isOptional = annotation.last == "?"
+        } else {
+            self.isOptional = false
+        }
+        // Modifier string
+        let modifiers: [String] = modifiers.map { $0.name }
+        if modifiers.isEmpty {
+            self.modifiersWithKeyword = keyword
+        } else {
+            self.modifiersWithKeyword = "\(modifiers.joined(separator: " ")) \(keyword)"
+        }
+        // Closure convenience
+        let type = typeAnnotation ?? ""
+        let typeRange = NSRange(location: 0, length: type.count)
+        // isClosure
+        if let regex = try? RegexFactory.shared.isClosure() {
+            self.isClosure = (regex.firstMatch(in: type, range: typeRange) != nil)
+        } else {
+            self.isClosure = false
+        }
+        guard isClosure else {
+            self.closureInput = ""
+            self.closureResult = ""
+            self.isClosureInputVoid = false
+            self.isClosureResultVoid = false
+            return
+        }
+        let closureComponents = type.components(separatedBy: "->").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard closureComponents.count == 2 else {
+            self.closureInput = ""
+            self.closureResult = ""
+            self.isClosureInputVoid = false
+            self.isClosureResultVoid = false
+            return
+        }
+        let rawInput = closureComponents[0]
+        var input = rawInput
+        // Closure Input
+        if input.starts(with: "(("), input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            let rangeEnd = String.Index(utf16Offset: input.count - 2, in: input)
+            input = String(input[rangeStart...rangeEnd])
+        } else if input.starts(with: "((("), !input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            input = String(input[rangeStart...])
+        } else if input.starts(with: "(("), !input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            input = String(input[rangeStart...])
+        }
+        self.closureInput = input
+        // Is input void
+        let voids: [String] = ["(())","((Void)","(Void)"]
+        let cleanInput = rawInput.replacingOccurrences(of: " ", with: "")
+        self.isClosureInputVoid = voids.contains(cleanInput)
+        // Closure Output
+        var output = closureComponents[1]
+        if output.hasSuffix("))"), !output.starts(with: "(("), output.count > 1 {
+            let rangeEnd = String.Index(utf16Offset: output.count - 2, in: output)
+            output = String(output[...rangeEnd])
+        } else if output.hasSuffix(")"), !output.starts(with: "("), output.count > 1 {
+            let rangeEnd = String.Index(utf16Offset: output.count - 2, in: output)
+            output = String(output[...rangeEnd])
+        }
+        self.closureResult = output
+        // Is result void
+        if let regex = try? RegexFactory.shared.closureVoidResult() {
+            let outputRange = NSRange(location: 0, length: output.count)
+            self.isClosureResultVoid = (regex.firstMatch(in: output, range: outputRange) != nil)
+        } else {
+            self.isClosureResultVoid = false
+        }
     }
 }
 

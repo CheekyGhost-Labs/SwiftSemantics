@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 /// A function declaration.
@@ -140,6 +141,29 @@ public struct Function: Declaration, Hashable, Codable {
          ```
          */
         public let defaultArgument: String?
+
+        // MARK: - Convenience
+
+        /// Will return `true` when the parameter is a closure type.
+        public let isClosure: Bool
+
+        /// WIll return the input type annotation for the closure. Returns an empty string if no input is found.
+        public let closureInput: String
+
+        /// WIll return the result type annotation for the closure. Returns an empty string if no result is found.
+        public let closureResult: String
+
+        /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
+        public let isClosureInputVoid: Bool
+
+        /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
+        public let isClosureResultVoid: Bool
+
+        /// Will return the `secondName` if available, falling back to the `firstName`. If neither is available an empty string will be returned.
+        public let preferredName: String
+
+        /// Will return the `typeAnnotation` without any attributes (such as `@escaping`). If the `typeAnnotation` is `nil` then `nil` will also be returned.
+        public let typeWithoutAttributes: String?
     }
 
     /// The parent entity that owns the function.
@@ -172,6 +196,84 @@ extension Function.Parameter: ExpressibleBySyntax {
         type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
         defaultArgument = node.defaultArgument?.value.description.trimmed
+        // Preferred Name
+        if let secondName = secondName {
+            self.preferredName = secondName
+        } else if let firstName = firstName {
+            self.preferredName = firstName
+        } else {
+            self.preferredName = ""
+        }
+        // Convenience
+        guard let type = type else {
+            self.isClosure = false
+            self.closureInput = ""
+            self.closureResult = ""
+            self.isClosureInputVoid = false
+            self.isClosureResultVoid = false
+            self.typeWithoutAttributes = nil
+            return
+        }
+        self.typeWithoutAttributes = type.replacingOccurrences(of: "\\@escaping\\s{0,1}", with: "", options: .regularExpression)
+        let closureType = typeWithoutAttributes ?? ""
+        let typeRange = NSRange(location: 0, length: closureType.count)
+        // isClosure
+        if let regex = try? RegexFactory.shared.isClosure() {
+            self.isClosure = (regex.firstMatch(in: closureType, range: typeRange) != nil)
+        } else {
+            self.isClosure = false
+        }
+        guard isClosure else {
+            self.closureInput = ""
+            self.closureResult = ""
+            self.isClosureInputVoid = false
+            self.isClosureResultVoid = false
+            return
+        }
+        let closureComponents = closureType.components(separatedBy: "->").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        guard closureComponents.count == 2 else {
+            self.closureInput = ""
+            self.closureResult = ""
+            self.isClosureInputVoid = false
+            self.isClosureResultVoid = false
+            return
+        }
+        let rawInput = closureComponents[0]
+        var input = rawInput
+        // Closure Input
+        if input.starts(with: "(("), input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            let rangeEnd = String.Index(utf16Offset: input.count - 2, in: input)
+            input = String(input[rangeStart...rangeEnd])
+        } else if input.starts(with: "((("), !input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            input = String(input[rangeStart...])
+        } else if input.starts(with: "(("), !input.hasSuffix("))") {
+            let rangeStart = String.Index(utf16Offset: 1, in: input)
+            input = String(input[rangeStart...])
+        }
+        self.closureInput = input
+        // Is input void
+        let voids: [String] = ["(())","((Void)","(Void)"]
+        let cleanInput = rawInput.replacingOccurrences(of: " ", with: "")
+        self.isClosureInputVoid = voids.contains(cleanInput)
+        // Closure Output
+        var output = closureComponents[1]
+        if output.hasSuffix("))"), !output.starts(with: "(("), output.count > 1 {
+            let rangeEnd = String.Index(utf16Offset: output.count - 2, in: output)
+            output = String(output[...rangeEnd])
+        } else if output.hasSuffix(")"), !output.starts(with: "("), output.count > 1 {
+            let rangeEnd = String.Index(utf16Offset: output.count - 2, in: output)
+            output = String(output[...rangeEnd])
+        }
+        self.closureResult = output
+        // Is result void
+        if let regex = try? RegexFactory.shared.closureVoidResult() {
+            let outputRange = NSRange(location: 0, length: output.count)
+            self.isClosureResultVoid = (regex.firstMatch(in: output, range: outputRange) != nil)
+        } else {
+            self.isClosureResultVoid = false
+        }
     }
 }
 
