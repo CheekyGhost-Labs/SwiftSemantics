@@ -208,7 +208,7 @@ extension Function.Parameter: ExpressibleBySyntax {
         let typeString = type ?? ""
         self.typeWithoutAttributes = typeString.replacingOccurrences(of: "\\@escaping\\s{0,1}", with: "", options: .regularExpression)
         // Closure Convenience
-        let closureDetails = ClosureDetails(typeString: typeString)
+        let closureDetails = ClosureDetails(typeString: typeWithoutAttributes)
         self.isClosure = closureDetails?.isClosure ?? false
         self.closureInput = closureDetails?.closureInput ?? ""
         self.closureResult = closureDetails?.closureResult ?? ""
