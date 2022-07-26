@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 /// A function declaration.
@@ -140,6 +141,29 @@ public struct Function: Declaration, Hashable, Codable {
          ```
          */
         public let defaultArgument: String?
+
+        // MARK: - Convenience
+
+        /// Will return `true` when the parameter is a closure type.
+        public let isClosure: Bool
+
+        /// WIll return the input type annotation for the closure. Returns an empty string if no input is found.
+        public let closureInput: String
+
+        /// WIll return the result type annotation for the closure. Returns an empty string if no result is found.
+        public let closureResult: String
+
+        /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
+        public let isClosureInputVoid: Bool
+
+        /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
+        public let isClosureResultVoid: Bool
+
+        /// Will return the `secondName` if available, falling back to the `firstName`. If neither is available an empty string will be returned.
+        public let preferredName: String
+
+        /// Will return the `typeAnnotation` without any attributes (such as `@escaping`). If the `typeAnnotation` is `nil` then `nil` will also be returned.
+        public let typeWithoutAttributes: String?
     }
 
     /// The parent entity that owns the function.
@@ -172,6 +196,24 @@ extension Function.Parameter: ExpressibleBySyntax {
         type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
         defaultArgument = node.defaultArgument?.value.description.trimmed
+        // Preferred Name
+        if let secondName = secondName {
+            self.preferredName = secondName
+        } else if let firstName = firstName {
+            self.preferredName = firstName
+        } else {
+            self.preferredName = ""
+        }
+        // Convenience
+        let typeString = type ?? ""
+        self.typeWithoutAttributes = typeString.replacingOccurrences(of: "\\@escaping\\s{0,1}", with: "", options: .regularExpression)
+        // Closure Convenience
+        let closureDetails = ClosureDetails(typeString: typeWithoutAttributes)
+        self.isClosure = closureDetails?.isClosure ?? false
+        self.closureInput = closureDetails?.closureInput ?? ""
+        self.closureResult = closureDetails?.closureResult ?? ""
+        self.isClosureInputVoid = closureDetails?.isClosureInputVoid ?? false
+        self.isClosureResultVoid = closureDetails?.isClosureResultVoid ?? false
     }
 }
 

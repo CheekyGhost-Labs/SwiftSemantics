@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 /// A declaration for a property or a top-level variable or constant.
@@ -46,6 +47,33 @@ public struct Variable: Declaration, Hashable, Codable {
         /// The kind of accessor.
         public let kind: Kind?
     }
+
+    // MARK: - Convenience
+
+    /// Will return any modifiers joined by a whitespace and then the `keyword`
+    public let modifiersWithKeyword: String
+
+    /// Bool whether the variable has a setter available
+    public let hasSetter: Bool
+
+    /// Will return a `Bool` flag indicating if the type annotation contains the optional indicator `?`
+    public let isOptional: Bool
+
+    /// Will return `true` when the `type` is a closure.
+    public let isClosure: Bool
+
+    /// WIll return the input `typeAnnotation` for the closure. Returns an empty string if no input is found.
+    public let closureInput: String
+
+    /// WIll return the result `typeAnnotation` for the closure. Returns an empty string if no result is found.
+    public let closureResult: String
+
+    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
+    public let isClosureInputVoid: Bool
+
+    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
+    public let isClosureResultVoid: Bool
+
 }
 
 // MARK: - ExpressibleBySyntax
@@ -76,6 +104,26 @@ extension Variable: ExpressibleBySyntax {
         accessors = Accessor.accessors(from: node.accessor?.as(AccessorBlockSyntax.self))
         // Assign parent
         self.parent = node.resolveParentType()
+        self.hasSetter = accessors.contains(where: { $0.kind == .set })
+        if let annotation = typeAnnotation {
+            self.isOptional = annotation.last == "?"
+        } else {
+            self.isOptional = false
+        }
+        // Modifier string
+        let modifiers: [String] = modifiers.map { $0.name }
+        if modifiers.isEmpty {
+            self.modifiersWithKeyword = keyword
+        } else {
+            self.modifiersWithKeyword = "\(modifiers.joined(separator: " ")) \(keyword)"
+        }
+        // Closure Convenience
+        let closureDetails = ClosureDetails(typeString: typeAnnotation)
+        self.isClosure = closureDetails?.isClosure ?? false
+        self.closureInput = closureDetails?.closureInput ?? ""
+        self.closureResult = closureDetails?.closureResult ?? ""
+        self.isClosureInputVoid = closureDetails?.isClosureInputVoid ?? false
+        self.isClosureResultVoid = closureDetails?.isClosureResultVoid ?? false
     }
 }
 

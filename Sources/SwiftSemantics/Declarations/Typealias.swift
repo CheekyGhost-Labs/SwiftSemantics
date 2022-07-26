@@ -1,3 +1,4 @@
+import Foundation
 import SwiftSyntax
 
 /// A type alias declaration.
@@ -48,6 +49,21 @@ public struct Typealias: Declaration, Hashable, Codable {
 
     /// The parent entity that owns the typealias.
     public let parent: String?
+
+    /// Will return `true` when the parameter is a closure type.
+    public let isClosure: Bool
+
+    /// WIll return the input type annotation for the closure. Returns an empty string if no input is found.
+    public let closureInput: String
+
+    /// WIll return the result type annotation for the closure. Returns an empty string if no result is found.
+    public let closureResult: String
+
+    /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
+    public let isClosureInputVoid: Bool
+
+    /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
+    public let isClosureResultVoid: Bool
 }
 
 // MARK: - ExpressibleBySyntax
@@ -64,6 +80,13 @@ extension Typealias: ExpressibleBySyntax {
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent
         parent = node.resolveParentType()
+        // Closure Convenience
+        let closureDetails = ClosureDetails(typeString: initializedType)
+        self.isClosure = closureDetails?.isClosure ?? false
+        self.closureInput = closureDetails?.closureInput ?? ""
+        self.closureResult = closureDetails?.closureResult ?? ""
+        self.isClosureInputVoid = closureDetails?.isClosureInputVoid ?? false
+        self.isClosureResultVoid = closureDetails?.isClosureResultVoid ?? false
     }
 }
 
