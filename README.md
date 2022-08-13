@@ -1,7 +1,6 @@
 # SwiftSemantics
 
 ![CI][ci badge]
-[![Documentation][documentation badge]][documentation]
 
 SwiftSemantics is a package that lets you
 parse Swift code into its constituent declarations.
