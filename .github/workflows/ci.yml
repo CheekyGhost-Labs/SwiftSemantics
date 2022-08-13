@@ -15,6 +15,7 @@ jobs:
         xcode:
           - "11.7" # Swift 5.2
           - "12.2" # Swift 5.3
+          - "13.4" # Swift 5.3
 
     name: "macOS Big Sur (Xcode ${{ matrix.xcode }})"
 
