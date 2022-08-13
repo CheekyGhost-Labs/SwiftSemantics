@@ -87,11 +87,11 @@ extension Subscript: CustomStringConvertible {
 
         description += "(\(indices.map { $0.description }.joined(separator: ", ")))"
 
+        description += " -> \(returnType)"
+
         if !genericRequirements.isEmpty {
             description += " where \(genericRequirements.map { $0.description }.joined(separator: ", "))"
         }
-
-        description += " -> \(returnType)"
 
         return description
     }
