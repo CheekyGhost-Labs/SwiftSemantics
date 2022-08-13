@@ -21,7 +21,7 @@ final class InitializerTests: XCTestCase {
         XCTAssertEqual(initializer.parameters[0].type, "String")
         XCTAssertTrue(initializer.parameters[0].variadic)
         XCTAssertEqual(initializer.throwsOrRethrowsKeyword, "throws")
-        XCTAssertEqual(initializer.parent, "Person")
+        XCTAssertEqual(initializer.parent, Parent(modifiers: [Modifier(name: "public", detail: nil)], keyword: "class", name: "Person"))
     }
 
     static var allTests = [

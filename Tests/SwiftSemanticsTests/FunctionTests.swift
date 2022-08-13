@@ -56,7 +56,7 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(staticInfix.modifiers.map { $0.description}, ["static"])
         XCTAssertEqual(staticInfix.identifier, "∓")
         XCTAssertTrue(staticInfix.isOperator)
-        XCTAssertEqual(staticInfix.parent, "Int")
+        XCTAssertEqual(staticInfix.parent, Parent(keyword: "extension", name: "Int"))
 
         let nonoperator = declarations[4]
         XCTAssert(nonoperator.modifiers.isEmpty)
@@ -86,31 +86,56 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(prefix.modifiers.map { $0.description}, ["prefix"])
         XCTAssertEqual(prefix.identifier, "¬")
         XCTAssertTrue(prefix.isOperator)
-        XCTAssertEqual(prefix.parent, "Sample")
+        XCTAssertEqual(prefix.parent, Parent(keyword: "struct", name: "Sample"))
 
         let infix = declarations[1]
         XCTAssert(infix.modifiers.isEmpty)
         XCTAssertEqual(infix.identifier, "±")
         XCTAssertTrue(infix.isOperator)
-        XCTAssertEqual(infix.parent, "Sample")
+        XCTAssertEqual(infix.parent, Parent(keyword: "struct", name: "Sample"))
 
         let postfix = declarations[2]
         XCTAssertEqual(postfix.modifiers.map { $0.description}, ["postfix"])
         XCTAssertEqual(postfix.identifier, "°")
         XCTAssertTrue(postfix.isOperator)
-        XCTAssertEqual(postfix.parent, "Sample")
+        XCTAssertEqual(postfix.parent, Parent(keyword: "struct", name: "Sample"))
 
         let nonoperator = declarations[3]
         XCTAssert(nonoperator.modifiers.isEmpty)
         XCTAssertEqual(nonoperator.identifier, "sayHello")
         XCTAssertFalse(nonoperator.isOperator)
-        XCTAssertEqual(nonoperator.parent, "Sample")
+        XCTAssertEqual(nonoperator.parent, Parent(keyword: "struct", name: "Sample"))
 
         let staticInfix = declarations[4]
         XCTAssertEqual(staticInfix.modifiers.map { $0.description}, ["static"])
         XCTAssertEqual(staticInfix.identifier, "∓")
         XCTAssertTrue(staticInfix.isOperator)
-        XCTAssertEqual(staticInfix.parent, "Int")
+        XCTAssertEqual(staticInfix.parent, Parent(keyword: "extension", name: "Int"))
+    }
+
+    func testFunctionWithParentInExtensionOnType() throws {
+        let source = #"""
+        struct Sample {
+            func sayHello() { print("Hello Extension") }
+        }
+        extension Sample {
+            func sayHello() { print("Hello Extension") }
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+
+        let original = declarations[0]
+        XCTAssertTrue(original.modifiers.isEmpty)
+        XCTAssertEqual(original.identifier, "sayHello")
+        XCTAssertEqual(original.parent, Parent(keyword: "struct", name: "Sample"))
+
+        let extended = declarations[1]
+        XCTAssertTrue(extended.modifiers.isEmpty)
+        XCTAssertEqual(extended.identifier, "sayHello")
+        XCTAssertEqual(extended.parent, Parent(keyword: "extension", name: "Sample"))
     }
 
     static var allTests = [

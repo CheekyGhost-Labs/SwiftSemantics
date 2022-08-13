@@ -37,7 +37,7 @@ final class OperatorTests: XCTestCase {
         XCTAssertEqual(declaration.modifiers.first?.name, "prefix")
         XCTAssertEqual(declaration.kind, .prefix)
         XCTAssertEqual(declaration.name, "+++")
-        XCTAssertEqual(declaration.parent, "Sample")
+        XCTAssertEqual(declaration.parent, Parent(keyword: "struct", name: "Sample"))
     }
 
     static var allTests = [

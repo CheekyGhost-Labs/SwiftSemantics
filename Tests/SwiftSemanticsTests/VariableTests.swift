@@ -38,13 +38,13 @@ final class VariableTests: XCTestCase {
         XCTAssertEqual(declarations[0].typeAnnotation, "String")
         XCTAssertEqual(declarations[0].initializedValue, "\"Hello\"")
         XCTAssertEqual(declarations[0].description, "let greeting: String = \"Hello\"")
-        XCTAssertEqual(declarations[0].parent, "SampleClass")
+        XCTAssertEqual(declarations[0].parent, Parent(keyword: "class", name: "SampleClass"))
 
         XCTAssert(declarations[1].attributes.isEmpty)
         XCTAssertEqual(declarations[1].typeAnnotation, "String")
         XCTAssertEqual(declarations[1].initializedValue, "\"Hello\"")
         XCTAssertEqual(declarations[1].description, "let structVar: String = \"Hello\"")
-        XCTAssertEqual(declarations[1].parent, "SampleStruct")
+        XCTAssertEqual(declarations[1].parent, Parent(keyword: "struct", name: "SampleStruct"))
     }
 
     func testClosureVariableDeclaration() throws {

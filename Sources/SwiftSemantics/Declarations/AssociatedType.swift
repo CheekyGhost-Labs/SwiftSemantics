@@ -15,7 +15,7 @@ public struct AssociatedType: Declaration, Hashable, Codable {
     public let name: String
 
     /// The parent entity that owns the associated type.
-    public let parent: String?
+    public let parent: Parent?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -28,7 +28,7 @@ extension AssociatedType: ExpressibleBySyntax {
         keyword = node.associatedtypeKeyword.text.trimmed
         name = node.identifier.text.trimmed
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
     }
 }
 

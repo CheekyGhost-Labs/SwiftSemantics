@@ -51,17 +51,6 @@ extension DeclSyntaxProtocol {
         }
         return parentNode
     }
-
-    func resolveParentType() -> String? {
-        let parentNode = resolveRootParent()
-        let validChild = parentNode?.children.first(where: {
-            $0.tokens.contains(where: { validParentTokens.contains($0.tokenKind) })
-        })
-        if let nextToken = validChild?.nextToken, validParentTokens.contains(nextToken.tokenKind) || nextToken.tokenKind.isIdentifier {
-            return nextToken.text
-        }
-        return nil
-    }
 }
 
 extension SyntaxProtocol {

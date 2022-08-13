@@ -167,7 +167,9 @@ public struct Function: Declaration, Hashable, Codable {
     }
 
     /// The parent entity that owns the function.
-    public let parent: String?
+    public let parent: Parent?
+
+    public let parentInfo: Parent?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -183,7 +185,8 @@ extension Function: ExpressibleBySyntax {
         genericParameters = node.genericParameterClause?.genericParameterList.map { GenericParameter($0) } ?? []
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
+        parentInfo = Parent(node.resolveRootParent())
     }
 }
 

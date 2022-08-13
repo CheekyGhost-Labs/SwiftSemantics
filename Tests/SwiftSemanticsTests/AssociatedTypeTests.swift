@@ -22,7 +22,7 @@ final class AssociatedTypeTests: XCTestCase {
         XCTAssertEqual(declarations[1].attributes.count, 0)
         XCTAssertEqual(declarations[1].name, "S")
         XCTAssertEqual(declarations[1].description, "associatedtype S")
-        XCTAssertEqual(declarations[1].parent, "SampleProtocol")
+        XCTAssertEqual(declarations[1].parent, Parent(keyword: "protocol", name: "SampleProtocol"))
     }
 
     static var allTests = [

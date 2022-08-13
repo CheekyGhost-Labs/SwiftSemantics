@@ -48,7 +48,7 @@ public struct Typealias: Declaration, Hashable, Codable {
     public let genericRequirements: [GenericRequirement]
 
     /// The parent entity that owns the typealias.
-    public let parent: String?
+    public let parent: Parent?
 
     /// Will return `true` when the parameter is a closure type.
     public let isClosure: Bool
@@ -79,7 +79,7 @@ extension Typealias: ExpressibleBySyntax {
         genericParameters = node.genericParameterClause?.genericParameterList.map { GenericParameter($0) } ?? []
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
         // Closure Convenience
         let closureDetails = ClosureDetails(typeString: initializedType)
         self.isClosure = closureDetails?.isClosure ?? false

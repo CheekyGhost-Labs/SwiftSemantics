@@ -34,7 +34,7 @@ public struct Operator: Declaration, Hashable, Codable {
     public let name: String
 
     /// The parent entity that owns the operator.
-    public let parent: String?
+    public let parent: Parent?
 
     /// The kind of operator (prefix, infix, or postfix).
     public var kind: Kind {
@@ -140,6 +140,6 @@ extension Operator: ExpressibleBySyntax {
         keyword = node.operatorKeyword.text.trimmed
         name = node.identifier.text.trimmed
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
     }
 }

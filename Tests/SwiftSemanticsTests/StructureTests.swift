@@ -15,9 +15,9 @@ final class StructureTests: XCTestCase {
         XCTAssertEqual(declarations[0].name, "A")
         XCTAssertNil(declarations[0].parent)
         XCTAssertEqual(declarations[1].name, "B")
-        XCTAssertEqual(declarations[1].parent, "A")
+        XCTAssertEqual(declarations[1].parent, Parent(keyword: "struct", name: "A"))
         XCTAssertEqual(declarations[2].name, "C")
-        XCTAssertEqual(declarations[2].parent, "B")
+        XCTAssertEqual(declarations[2].parent, Parent(keyword: "struct", name: "B"))
     }
 
     static var allTests = [

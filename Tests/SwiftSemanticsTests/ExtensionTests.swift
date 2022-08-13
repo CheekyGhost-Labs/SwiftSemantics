@@ -29,6 +29,7 @@ final class ExtensionTests: XCTestCase {
 
         let properties = try SyntaxParser.declarations(of: Variable.self, source: source)
         XCTAssertEqual(properties.count, 1)
+        XCTAssertEqual(properties[0].parent, Parent(keyword: "extension", name: "Collection"))
     }
 
     func testFunctionDeclarationWithinConstrainedExtension() throws {
@@ -49,6 +50,7 @@ final class ExtensionTests: XCTestCase {
 
         let functions = try SyntaxParser.declarations(of: Function.self, source: source)
         XCTAssertEqual(functions.count, 1)
+        XCTAssertEqual(functions[0].parent, Parent(keyword: "extension", name: "Collection"))
     }
 
     func testinheritanceInConstrainedExtension() throws {

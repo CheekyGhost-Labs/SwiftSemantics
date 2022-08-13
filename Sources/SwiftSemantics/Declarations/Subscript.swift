@@ -50,7 +50,7 @@ public struct Subscript: Declaration, Hashable, Codable {
     public let accessors: [Variable.Accessor]
 
     /// The parent entity that owns the subscript.
-    public let parent: String?
+    public let parent: Parent?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -67,7 +67,7 @@ extension Subscript: ExpressibleBySyntax {
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         accessors = Variable.Accessor.accessors(from: node.accessor?.as(AccessorBlockSyntax.self))
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
     }
 }
 

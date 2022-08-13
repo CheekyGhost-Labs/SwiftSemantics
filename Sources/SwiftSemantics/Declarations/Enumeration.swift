@@ -62,7 +62,7 @@ public struct Enumeration: Declaration, Hashable, Codable {
     public let genericRequirements: [GenericRequirement]
 
     /// The parent entity that owns the enumeration.
-    public let parent: String?
+    public let parent: Parent?
 
     /// An enumeration case.
     public struct Case: Declaration, Hashable, Codable {
@@ -131,7 +131,7 @@ extension Enumeration: ExpressibleBySyntax {
         genericParameters = node.genericParameters?.genericParameterList.map { GenericParameter($0) } ?? []
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent
-        parent = node.resolveParentType()
+        parent = Parent(node.resolveRootParent())
     }
 }
 

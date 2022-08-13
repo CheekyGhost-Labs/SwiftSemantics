@@ -30,7 +30,7 @@ final class SubscriptTests: XCTestCase {
         XCTAssertEqual(declarations[1].indices[0].type, "String")
         XCTAssertEqual(declarations[1].returnType, "String?")
         XCTAssertEqual(declarations[1].description, "subscript(key: String) -> String?")
-        XCTAssertEqual(declarations[1].parent, "SampleStruct")
+        XCTAssertEqual(declarations[1].parent, Parent(keyword: "struct", name: "SampleStruct"))
     }
 
     static var allTests = [
