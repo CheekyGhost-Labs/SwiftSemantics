@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  tag:
+    branches: [main]
   push:
     branches: [main]
   pull_request:
@@ -15,6 +17,7 @@ jobs:
         xcode:
           - "11.7" # Swift 5.2
           - "12.2" # Swift 5.3
+          - "13.4" # Swift 5.5
 
     name: "macOS Big Sur (Xcode ${{ matrix.xcode }})"
 
