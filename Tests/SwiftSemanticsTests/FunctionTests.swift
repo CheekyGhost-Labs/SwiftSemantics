@@ -138,6 +138,25 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(extended.parent, Parent(keyword: "extension", name: "Sample"))
     }
 
+    func testFunctionWithAttributesWillStrip() throws {
+        let source = #"""
+        struct Sample {
+            func sayHello(_ handler: @escaping (Int) -> Void) { print("Hello World") }
+            func sayHelloAgain(_ handler: @autoclosure () -> Any) { print("Hello Again World") }
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "(Int) -> Void")
+
+        let repeated = declarations[1]
+        XCTAssertEqual(repeated.signature.input[0].typeWithoutAttributes, "() -> Any")
+    }
+
     static var allTests = [
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
