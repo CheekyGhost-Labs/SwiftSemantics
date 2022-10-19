@@ -209,7 +209,7 @@ extension Function.Parameter: ExpressibleBySyntax {
         }
         // Convenience
         let typeString = type ?? ""
-        self.typeWithoutAttributes = typeString.replacingOccurrences(of: "\\@[\\w\\(\\)\\,]{1,}\\s{0,}", with: "", options: .regularExpression)
+        self.typeWithoutAttributes = typeString.replacingOccurrences(of: "(\\@[\\w\\(\\)\\,]{1,}\\s{0,})|(inout\\s{0,})", with: "", options: .regularExpression)
         // Closure Convenience
         let closureDetails = ClosureDetails(typeString: typeWithoutAttributes)
         self.isClosure = closureDetails?.isClosure ?? false

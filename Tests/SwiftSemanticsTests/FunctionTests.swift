@@ -157,6 +157,21 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(repeated.signature.input[0].typeWithoutAttributes, "() -> Any")
     }
 
+    func testFunctionWithInoutAttributesWillStrip() throws {
+        let source = #"""
+        struct Sample {
+            func sayHello(_ handler: inout Int) { print("Hello World") }
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "Int")
+    }
+
     static var allTests = [
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
