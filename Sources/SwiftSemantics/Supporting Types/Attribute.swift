@@ -8,7 +8,7 @@ import SwiftSyntax
  the `@discardableResult` attribute indicates that
  a function may be called without using the result.
  */
-public struct Attribute: Hashable, Codable {
+public struct Attribute: Hashable, Equatable, Codable {
     /**
      The attribute name.
 
@@ -42,7 +42,7 @@ public struct Attribute: Hashable, Codable {
      - The second argument is unnamed and has the value `"unavailable"`
      - The third argument has the name "`renamed`" and the value `"🚫"`
      */
-    public struct Argument: Hashable, Codable {
+    public struct Argument: Hashable, Equatable, Codable {
         /// The argument name, if any.
         public let name: String?
 

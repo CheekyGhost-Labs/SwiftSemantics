@@ -18,7 +18,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[0].attributes.isEmpty)
         XCTAssertEqual(declarations[0].indices.count, 1)
-        XCTAssertEqual(declarations[0].indices[0].firstName, "index")
+        XCTAssertEqual(declarations[0].indices[0].name, "index")
         XCTAssertEqual(declarations[0].indices[0].type, "Int")
         XCTAssertEqual(declarations[0].returnType, "Int?")
         XCTAssertEqual(declarations[0].description, "subscript(index: Int) -> Int?")
@@ -26,7 +26,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[1].attributes.isEmpty)
         XCTAssertEqual(declarations[1].indices.count, 1)
-        XCTAssertEqual(declarations[1].indices[0].firstName, "key")
+        XCTAssertEqual(declarations[1].indices[0].name, "key")
         XCTAssertEqual(declarations[1].indices[0].type, "String")
         XCTAssertEqual(declarations[1].returnType, "String?")
         XCTAssertEqual(declarations[1].description, "subscript(key: String) -> String?")
@@ -47,7 +47,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[0].attributes.isEmpty)
         XCTAssertEqual(declarations[0].indices.count, 1)
-        XCTAssertEqual(declarations[0].indices[0].firstName, "index")
+        XCTAssertEqual(declarations[0].indices[0].name, "index")
         XCTAssertEqual(declarations[0].indices[0].type, "T")
         XCTAssertEqual(declarations[0].returnType, "Int?")
         XCTAssertEqual(declarations[0].description, "subscript<T: Any>(index: T) -> Int?")
@@ -55,7 +55,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[1].attributes.isEmpty)
         XCTAssertEqual(declarations[1].indices.count, 1)
-        XCTAssertEqual(declarations[1].indices[0].firstName, "key")
+        XCTAssertEqual(declarations[1].indices[0].name, "key")
         XCTAssertEqual(declarations[1].indices[0].type, "T")
         XCTAssertEqual(declarations[1].returnType, "String?")
         XCTAssertEqual(declarations[1].description, "subscript<T: Any>(key: T) -> String?")
@@ -76,7 +76,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[0].attributes.isEmpty)
         XCTAssertEqual(declarations[0].indices.count, 1)
-        XCTAssertEqual(declarations[0].indices[0].firstName, "index")
+        XCTAssertEqual(declarations[0].indices[0].name, "index")
         XCTAssertEqual(declarations[0].indices[0].type, "T")
         XCTAssertEqual(declarations[0].returnType, "Int?")
         XCTAssertEqual(declarations[0].description, "subscript<T: Any>(index: T) -> Int? where T: NSObject")
@@ -84,7 +84,7 @@ final class SubscriptTests: XCTestCase {
 
         XCTAssert(declarations[1].attributes.isEmpty)
         XCTAssertEqual(declarations[1].indices.count, 1)
-        XCTAssertEqual(declarations[1].indices[0].firstName, "key")
+        XCTAssertEqual(declarations[1].indices[0].name, "key")
         XCTAssertEqual(declarations[1].indices[0].type, "T")
         XCTAssertEqual(declarations[1].returnType, "String?")
         XCTAssertEqual(declarations[1].description, "subscript<T: Any>(key: T) -> String? where T: NSObject")

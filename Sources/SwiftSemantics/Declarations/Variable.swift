@@ -57,23 +57,13 @@ public struct Variable: Declaration, Hashable, Codable {
     public let hasSetter: Bool
 
     /// Will return a `Bool` flag indicating if the type annotation contains the optional indicator `?`
-    public let isOptional: Bool
+    private(set) public var isOptional: Bool
 
-    /// Will return `true` when the `type` is a closure.
-    public let isClosure: Bool
+    /// Will be assigned if the `type` represents a closure.
+    private(set) public var closureType: ClosureDeclaration?
 
-    /// WIll return the input `typeAnnotation` for the closure. Returns an empty string if no input is found.
-    public let closureInput: String
-
-    /// WIll return the result `typeAnnotation` for the closure. Returns an empty string if no result is found.
-    public let closureResult: String
-
-    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
-    public let isClosureInputVoid: Bool
-
-    /// WIll return`true` if the `typeAnnotation` is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
-    public let isClosureResultVoid: Bool
-
+    /// Will be assigned if the `type` represents a tuple.
+    private(set) public var tupleType: TupleDeclaration?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -94,8 +84,7 @@ extension Variable: ExpressibleBySyntax {
             preconditionFailure("PatternBindingSyntax should be contained within VariableDeclSyntax")
             return nil
         }
-
-        attributes = parent.attributes?.compactMap{ $0.as(AttributeSyntax.self) }.map { Attribute($0) } ?? []
+        attributes = AttributesCollector.collect(parent)
         modifiers = parent.modifiers?.map { Modifier($0) } ?? []
         keyword = parent.letOrVarKeyword.text.trimmed
         name = node.pattern.description.trimmed
@@ -105,8 +94,9 @@ extension Variable: ExpressibleBySyntax {
         // Assign parent
         self.parent = Parent(node.resolveRootParent())
         self.hasSetter = accessors.contains(where: { $0.kind == .set })
-        if let annotation = typeAnnotation {
-            self.isOptional = annotation.last == "?"
+        // Standard optional check
+        if let typeSyntax = node.children.first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
+            isOptional = typeSyntax.children.contains(where: { $0.syntaxNodeType == OptionalTypeSyntax.self })
         } else {
             self.isOptional = false
         }
@@ -117,13 +107,51 @@ extension Variable: ExpressibleBySyntax {
         } else {
             self.modifiersWithKeyword = "\(modifiers.joined(separator: " ")) \(keyword)"
         }
-        // Closure Convenience
-        let closureDetails = ClosureDetails(typeString: typeAnnotation)
-        self.isClosure = closureDetails?.isClosure ?? false
-        self.closureInput = closureDetails?.closureInput ?? ""
-        self.closureResult = closureDetails?.closureResult ?? ""
-        self.isClosureInputVoid = closureDetails?.isClosureInputVoid ?? false
-        self.isClosureResultVoid = closureDetails?.isClosureResultVoid ?? false
+        // Check for immediate closure
+        if let typeAnnotationSyntax = node.children.first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
+            if typeAnnotationSyntax.children.contains(where: { $0.syntaxNodeType == FunctionTypeSyntax.self }) {
+                closureType = ClosureDeclarationCollector.collect(node._syntaxNode)
+                return
+            }
+        }
+        // Closure/Tuple type
+        var potentialTuple = TupleDeclarationCollector.collect(node._syntaxNode)
+        while potentialTuple != nil {
+            guard !potentialTuple!.arguments.isEmpty else { break }
+            guard potentialTuple!.arguments.count == 1 else {
+                tupleType = potentialTuple!
+                break
+            }
+            guard let tupleParameter = potentialTuple!.arguments[0] as? TupleParameter else { break }
+            potentialTuple = TupleDeclaration(tupleParameter)
+        }
+        if (tupleType?.arguments ?? []).isEmpty {
+            closureType = ClosureDeclarationCollector.collect(node._syntaxNode)
+        }
+        if tupleType != nil, !isOptional {
+            isOptional = Utils.SwiftSyntax.isVariableTupleDeclarationOptional(node)
+        }
+    }
+}
+
+extension SyntaxProtocol {
+
+    func printDescription() {
+        var results: [String] = []
+        for (_, child) in children.enumerated() {
+            results.append("\(0): \(child.syntaxNodeType)")
+            traverseNode(child, indent: 0, results: &results)
+        }
+        let combined = results.joined(separator: "\n")
+        print(combined)
+    }
+
+    func traverseNode(_ node: any SyntaxProtocol, indent: Int = 0, results: inout [String]) {
+        for (_, child) in node.children.enumerated() {
+            let prefix = String(Array(repeating: " ", count: indent + (indent + 1)))
+            results.append("\(prefix)\(indent).\(indent + 1): \(child.syntaxNodeType)")
+            traverseNode(child, indent: indent + 1, results: &results)
+        }
     }
 }
 

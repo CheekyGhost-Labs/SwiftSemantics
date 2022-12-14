@@ -50,20 +50,11 @@ public struct Typealias: Declaration, Hashable, Codable {
     /// The parent entity that owns the typealias.
     public let parent: Parent?
 
-    /// Will return `true` when the parameter is a closure type.
-    public let isClosure: Bool
-
-    /// WIll return the input type annotation for the closure. Returns an empty string if no input is found.
-    public let closureInput: String
-
-    /// WIll return the result type annotation for the closure. Returns an empty string if no result is found.
-    public let closureResult: String
-
-    /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `(Void) -> String/ (()) -> String`.
-    public let isClosureInputVoid: Bool
-
-    /// WIll return`true` if the parameter is a closure and the input is a void block. i.e `() -> (Void)/() -> (())`.
-    public let isClosureResultVoid: Bool
+    /// Will be assigned if the `type` represents a closure.
+    private(set) public var closureType: ClosureDeclaration?
+    
+    /// Will be assigned if the `type` represents a tupe.
+    private(set) public var tupleType: TupleDeclaration?
 }
 
 // MARK: - ExpressibleBySyntax
@@ -80,13 +71,27 @@ extension Typealias: ExpressibleBySyntax {
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent
         parent = Parent(node.resolveRootParent())
-        // Closure Convenience
-        let closureDetails = ClosureDetails(typeString: initializedType)
-        self.isClosure = closureDetails?.isClosure ?? false
-        self.closureInput = closureDetails?.closureInput ?? ""
-        self.closureResult = closureDetails?.closureResult ?? ""
-        self.isClosureInputVoid = closureDetails?.isClosureInputVoid ?? false
-        self.isClosureResultVoid = closureDetails?.isClosureResultVoid ?? false
+        // Check for immediate closure
+        if let typeAnnotationSyntax = node.children.first(where: { $0.syntaxNodeType == TypeInitializerClauseSyntax.self }) {
+            if typeAnnotationSyntax.children.contains(where: { $0.syntaxNodeType == FunctionTypeSyntax.self }) {
+                closureType = ClosureDeclarationCollector.collect(node._syntaxNode)
+                return
+            }
+        }
+        // Closure/Tuple type
+        var potentialTuple = TupleDeclarationCollector.collect(node._syntaxNode)
+        while potentialTuple != nil {
+            guard !potentialTuple!.arguments.isEmpty else { break }
+            guard potentialTuple!.arguments.count == 1 else {
+                tupleType = potentialTuple!
+                break
+            }
+            guard let tupleParameter = potentialTuple!.arguments[0] as? TupleParameter else { break }
+            potentialTuple = TupleDeclaration(tupleParameter)
+        }
+        if (tupleType?.arguments ?? []).isEmpty {
+            closureType = ClosureDeclarationCollector.collect(node._syntaxNode)
+        }
     }
 }
 

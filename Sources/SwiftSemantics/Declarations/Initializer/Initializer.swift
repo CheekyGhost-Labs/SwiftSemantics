@@ -29,7 +29,7 @@ public struct Initializer: Declaration, Hashable, Codable {
     public let genericParameters: [GenericParameter]
 
     /// The initializer inputs.
-    public let parameters: [Function.Parameter]
+    public let parameters: [any ParameterType]
 
     /// The `throws` or `rethrows` keyword, if any.
     public let throwsOrRethrowsKeyword: String?
@@ -63,7 +63,7 @@ extension Initializer: ExpressibleBySyntax {
         keyword = node.initKeyword.text.trimmed
         optional = node.optionalMark != nil
         genericParameters = node.genericParameterClause?.genericParameterList.map { GenericParameter($0) } ?? []
-        parameters = node.parameters.parameterList.map { Function.Parameter($0) }
+        parameters = FunctionParameterCollector.collect(node.parameters.parameterList)
         throwsOrRethrowsKeyword = node.throwsOrRethrowsKeyword?.description.trimmed
         genericRequirements = GenericRequirement.genericRequirements(from: node.genericWhereClause?.requirementList)
         // Assign parent

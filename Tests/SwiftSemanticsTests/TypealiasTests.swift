@@ -90,11 +90,11 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-        XCTAssertTrue(`typealias`.isClosure)
-        XCTAssertFalse(`typealias`.isClosureInputVoid)
-        XCTAssertTrue(`typealias`.isClosureResultVoid)
-        XCTAssertEqual(`typealias`.closureInput, "(T)")
-        XCTAssertEqual(`typealias`.closureResult, "Void")
+//        let closureType = try XCTUnwrap(`typealias`.closureType)
+//        XCTAssertFalse(closureType.isVoidInput)
+//        XCTAssertTrue(closureType.isVoidOutput)
+//        XCTAssertEqual(closureType.rawInput, "(T)")
+//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithVoidInputClosure() throws {
@@ -119,11 +119,11 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-        XCTAssertTrue(`typealias`.isClosure)
-        XCTAssertTrue(`typealias`.isClosureInputVoid)
-        XCTAssertTrue(`typealias`.isClosureResultVoid)
-        XCTAssertEqual(`typealias`.closureInput, "(Void)")
-        XCTAssertEqual(`typealias`.closureResult, "Void")
+//        let closureType = try XCTUnwrap(`typealias`.closureType)
+//        XCTAssertTrue(closureType.isVoidInput)
+//        XCTAssertTrue(closureType.isVoidOutput)
+//        XCTAssertEqual(closureType.rawInput, "(Void)")
+//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithEmptyInputClosure() throws {
@@ -148,11 +148,11 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-        XCTAssertTrue(`typealias`.isClosure)
-        XCTAssertFalse(`typealias`.isClosureInputVoid)
-        XCTAssertTrue(`typealias`.isClosureResultVoid)
-        XCTAssertEqual(`typealias`.closureInput, "()")
-        XCTAssertEqual(`typealias`.closureResult, "Void")
+//        let closureType = try XCTUnwrap(`typealias`.closureType)
+//        XCTAssertFalse(closureType.isVoidInput)
+//        XCTAssertTrue(closureType.isVoidOutput)
+//        XCTAssertEqual(closureType.rawInput, "()")
+//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithTypeClosure() throws {
@@ -177,11 +177,11 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-        XCTAssertTrue(`typealias`.isClosure)
-        XCTAssertFalse(`typealias`.isClosureInputVoid)
-        XCTAssertFalse(`typealias`.isClosureResultVoid)
-        XCTAssertEqual(`typealias`.closureInput, "(T, String)")
-        XCTAssertEqual(`typealias`.closureResult, "String")
+//        let closureType = try XCTUnwrap(`typealias`.closureType)
+//        XCTAssertFalse(closureType.isVoidInput)
+//        XCTAssertFalse(closureType.isVoidOutput)
+//        XCTAssertEqual(closureType.rawInput, "(T, String)")
+//        XCTAssertEqual(closureType.rawOutput, "String")
     }
 
     static var allTests = [

@@ -2,60 +2,69 @@
 //  RegexFactory.swift
 //  
 //
-//  Created by Michael O'Brien on 2/6/2022.
+//  Created by Cheeky Ghost Labson 2/6/2022.
 //
 
 import Foundation
+import RegexBuilder
 
 /// Class that holds regular expressions used for convenience assignments in memory to avoid re-creating each access.
-class RegexFactory {
+enum RegularExpression: String, CaseIterable {
+    case tupleDeclarationIsOptional
 
     // MARK: - Properties
 
-    static var shared: RegexFactory = RegexFactory()
+    typealias RegexType = Regex<(Substring, Regex<Substring>.RegexOutput)>
 
-    var regexMap: [String: NSRegularExpression] = [:]
+    static var regexMap: [RegularExpression: RegexType] = [:]
 
     // MARK: - Init
 
-    init() {
-        _ = try? isClosure()
-        _ = try? closureInput()
-        _ = try? closureEmptyInput()
-        _ = try? closureVoidInput()
-        _ = try? closureVoidResult()
+    static func preBuild() {
+        RegularExpression.allCases.forEach { _ = $0.buildPattern() }
     }
 
-    // MARK: - Helpers
+    func containsMatch(in input: String) -> Bool {
+        let regex = buildPattern()
+        let match = try? regex.firstMatch(in: input)
+        return match != nil
+    }
 
-    func regexForPattern(_ pattern: String) throws -> NSRegularExpression {
-        if let existing = regexMap[pattern] {
+    func firstMatch(in input: String) -> String? {
+        let regex = buildPattern()
+        do {
+            guard let result = try regex.firstMatch(in: input) else {
+                print("`\(rawValue)` found no match")
+                return nil
+            }
+            let resultSubstring: Substring = result.output.1
+            return String(resultSubstring).trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            // print("`\(rawValue)` match failed: `\(error.localizedDescription)`")
+            return nil
+        }
+    }
+
+    private func buildPattern() -> RegexType {
+        if let existing = Self.regexMap[self] {
             return existing
         }
-        let regex = try NSRegularExpression(pattern: pattern, options: [])
-        regexMap[pattern] = regex
+        var regex: RegexType
+        switch self {
+        case .tupleDeclarationIsOptional:
+            regex = Self.buildIsTupleDeclarationOptional()
+        }
+        Self.regexMap[self] = regex
         return regex
     }
 
-    // MARK: - Parameter Closures
+    // MARK: - General
 
-    func isClosure() throws -> NSRegularExpression {
-        return try regexForPattern("\\)\\s{0,}\\-\\>\\s{0,}((\\(.*\\))|Void|[\\w\\?\\!]+\\){0,1})")
-    }
-
-    func closureInput() throws -> NSRegularExpression {
-        return try regexForPattern("\\({0,}(\\(\\s{0,}\\)|\\(.{1,}\\))(?=\\s{0,}\\-\\>\\s{0,})")
-    }
-
-    func closureEmptyInput() throws -> NSRegularExpression {
-        return try regexForPattern("\\((\\s{0,})\\)\\s{0,}\\-\\>")
-    }
-
-    func closureVoidInput() throws -> NSRegularExpression {
-        return try regexForPattern("(^\\(\\({0,}Void|^\\(\\(\\)\\){0,}|^Void)[\\s\\?\\!]{0,}(?m)")
-    }
-
-    func closureVoidResult() throws -> NSRegularExpression {
-        return try regexForPattern("(\\((\\s{0,}|\\s{0,}Void{0,})\\)|Void)[\\s\\?\\!]{0,}(?m)")
+    private static func buildIsTupleDeclarationOptional() -> RegexType {
+        do {
+            return try Regex("(\\w{1}\\){1,}?$)|(\\){1,}\\?$)|(\\w{1}\\)\\?\\){1,}$)|(\\?{1}\\)\\?\\){1,}$)")
+        } catch {
+            fatalError("Error: Unable to generate regex")
+        }
     }
 }

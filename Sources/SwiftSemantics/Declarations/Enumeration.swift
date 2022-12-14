@@ -79,7 +79,7 @@ public struct Enumeration: Declaration, Hashable, Codable {
         public let name: String
 
         /// The associated values of the enumeration case, if any.
-        public let associatedValue: [Function.Parameter]?
+        public let associatedValue: [StandardParameter]?
 
         /// The raw value of the enumeration case, if any.
         public let rawValue: String?
@@ -153,7 +153,7 @@ extension Enumeration.Case {
         keyword = parent.caseKeyword.text.trimmed
 
         name = node.identifier.text.trimmed
-        associatedValue = node.associatedValue?.parameterList.map { Function.Parameter($0) }
+        associatedValue = node.associatedValue?.parameterList.map { StandardParameter($0) }
         rawValue = node.rawValue?.value.description.trimmed
     }
 }

@@ -16,7 +16,7 @@ final class InitializerTests: XCTestCase {
         XCTAssert(initializer.attributes.isEmpty)
         XCTAssertEqual(initializer.keyword, "init")
         XCTAssertEqual(initializer.parameters.count, 1)
-        XCTAssertEqual(initializer.parameters[0].firstName, "names")
+        XCTAssertEqual(initializer.parameters[0].name, "names")
         XCTAssertNil(initializer.parameters[0].secondName)
         XCTAssertEqual(initializer.parameters[0].type, "String")
         XCTAssertTrue(initializer.parameters[0].variadic)
