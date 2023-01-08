@@ -91,9 +91,44 @@ final class SubscriptTests: XCTestCase {
         XCTAssertEqual(declarations[1].parent, Parent(keyword: "struct", name: "SampleStruct"))
     }
 
+    func testSourceLocations() throws {
+        let source = #"""
+        subscript<T: Any>(index: T) -> Int? where T: NSObject
+
+        struct SampleStruct {
+            subscript(key: String) -> String?
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Subscript.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+        XCTAssertEqual(declarations[0].startLocation.line, 0)
+        XCTAssertEqual(declarations[0].startLocation.utf8Offset, 0)
+        XCTAssertEqual(declarations[0].endLocation.line, 0)
+        XCTAssertEqual(declarations[0].endLocation.utf8Offset, 53)
+        XCTAssertEqual(declarations[0].startLocation.column, 0)
+        XCTAssertEqual(declarations[0].endLocation.column, 53)
+        XCTAssertEqual(
+            declarations[0].extractFromSource(source),
+            "subscript<T: Any>(index: T) -> Int? where T: NSObject"
+        )
+        XCTAssertEqual(declarations[1].startLocation.line, 3)
+        XCTAssertEqual(declarations[1].startLocation.utf8Offset, 81)
+        XCTAssertEqual(declarations[1].endLocation.line, 3)
+        XCTAssertEqual(declarations[1].endLocation.utf8Offset, 114)
+        XCTAssertEqual(declarations[1].startLocation.column, 4)
+        XCTAssertEqual(declarations[1].endLocation.column, 37)
+        XCTAssertEqual(
+            declarations[1].extractFromSource(source),
+            "subscript(key: String) -> String?"
+        )
+    }
+
     static var allTests = [
         ("testSubscriptDeclaration", testSubscriptDeclaration),
         ("testSubscriptDeclarationWithGenericParameters", testSubscriptDeclarationWithGenericParameters),
-        ("testSubscriptDeclarationWithGenericRequirements", testSubscriptDeclarationWithGenericRequirements)
+        ("testSubscriptDeclarationWithGenericRequirements", testSubscriptDeclarationWithGenericRequirements),
+        ("testFunctionLineBounds", testFunctionLineBounds)
     ]
 }

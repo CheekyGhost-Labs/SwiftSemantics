@@ -64,6 +64,12 @@ public struct Variable: Declaration, Hashable, Codable {
 
     /// Will be assigned if the `type` represents a tuple.
     private(set) public var tupleType: TupleDeclaration?
+
+    /// The location the declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
 }
 
 // MARK: - ExpressibleBySyntax

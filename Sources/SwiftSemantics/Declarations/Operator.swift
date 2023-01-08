@@ -41,6 +41,12 @@ public struct Operator: Declaration, Hashable, Codable {
         return Kind(modifiers) ?? .infix
     }
 
+    /// The location the function declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
+
     static func isValidIdentifier(_ string: String) -> Bool {
         func isValidHeadCharacter(_ character: Character) -> Bool {
             switch character {

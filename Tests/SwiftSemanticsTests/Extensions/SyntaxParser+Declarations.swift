@@ -7,7 +7,7 @@ extension SyntaxParser {
     static func declarations<T: Declaration>(of type: T.Type, source: String) throws -> [T] {
         let collector = DeclarationCollector()
         let tree = try parse(source: source)
-        collector.walk(tree)
+        collector.walk(tree, sourceBuffer: source)
 
         switch type {
         case is AssociatedType.Type:

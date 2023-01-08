@@ -31,6 +31,35 @@ final class ConditionalCompilationBlockTests: XCTestCase {
         XCTAssertNil(conditionalCompilationBlock.branches[2].condition)
     }
 
+    func testSourceLocations() throws {
+        let source = #"""
+        #if compiler(>=5) && os(Linux)
+        enum A {}
+        #elseif swift(>=4.2)
+        enum B {}
+        #else
+        enum C {}
+        #endif
+            #if compiler(>=5) && os(Linux)
+                enum B {}
+            #else
+            #endif
+        struct Sample {}
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: ConditionalCompilationBlock.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+        XCTAssertEqual(declarations[0].startLocation.line, 0)
+        XCTAssertEqual(declarations[0].endLocation.line, 6)
+        XCTAssertEqual(declarations[0].startLocation.column, 0)
+        XCTAssertEqual(declarations[0].endLocation.column, 6)
+        XCTAssertEqual(declarations[1].startLocation.line, 7)
+        XCTAssertEqual(declarations[1].endLocation.line, 10)
+        XCTAssertEqual(declarations[1].startLocation.column, 4)
+        XCTAssertEqual(declarations[1].endLocation.column, 10)
+    }
+
     static var allTests = [
         ("testConditionalCompilationBlock", testConditionalCompilationBlock),
     ]

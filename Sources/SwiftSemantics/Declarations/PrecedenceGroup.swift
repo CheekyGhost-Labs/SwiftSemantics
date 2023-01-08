@@ -87,6 +87,12 @@ public struct PrecedenceGroup: Declaration, Hashable, Codable {
 
     /// The relation of operators to operators in other precedence groups.
     public let relations: [Relation]
+
+    /// The location the function declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
 }
 
 // MARK: -

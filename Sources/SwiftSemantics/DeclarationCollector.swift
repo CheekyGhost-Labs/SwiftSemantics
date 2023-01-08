@@ -72,110 +72,271 @@ open class DeclarationCollector: SyntaxVisitor {
     /// The collected variable declarations.
     public private(set) var variables: [Variable] = []
 
+    /// Source line location converter assigned when the `walk(_:sourceBuffer)` is used.
+    var lineConverter: SourceLocationConverter?
+
     /// Creates a new declaration collector.
     public override init() {}
 
     // MARK: - SyntaxVisitor
 
+    /// Will walk through the syntax as normal but use the provided source buffer to resolve what start/end lines a declaration is on.
+    ///
+    /// **Note:** If the standard `walk(_:)` method is used **all lines will be 0**
+    /// - Parameters:
+    ///   - node: The node to walk through.
+    ///   - sourceBuffer: The source the syntax was parsed from.
+    public func walk(_ node: SourceFileSyntax, sourceBuffer: String) {
+        lineConverter = SourceLocationConverter(file: sourceBuffer, tree: node)
+        walk(node)
+        lineConverter = nil
+    }
+
     /// Called when visiting an `AssociatedtypeDeclSyntax` node
     public override func visit(_ node: AssociatedtypeDeclSyntax) -> SyntaxVisitorContinueKind {
-        associatedTypes.append(AssociatedType(node))
+        var result = AssociatedType(node)
+        assignLocations(&result, node: node)
+        associatedTypes.append(result)
         return .skipChildren
     }
 
     /// Called when visiting a `ClassDeclSyntax` node
     public override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-        classes.append(Class(node))
+        var result = Class(node)
+        assignLocations(&result, node: node)
+        classes.append(result)
         return .visitChildren
     }
 
     /// Called when visiting a `DeinitializerDeclSyntax` node
     public override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        deinitializers.append(Deinitializer(node))
+        var result = Deinitializer(node)
+        assignLocations(&result, node: node)
+        deinitializers.append(result)
         return .skipChildren
     }
 
     /// Called when visiting an `EnumDeclSyntax` node
     public override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        enumerations.append(Enumeration(node))
+        var result = Enumeration(node)
+        assignLocations(&result, node: node)
+        enumerations.append(result)
         return .visitChildren
     }
 
     /// Called when visiting an `EnumCaseDeclSyntax` node
     public override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
-        enumerationCases.append(contentsOf: Enumeration.Case.cases(from: node))
+        let results = Enumeration.Case.cases(from: node)
+        for var item in results {
+            assignLocations(&item, node: node)
+            enumerationCases.append(item)
+        }
         return .skipChildren
     }
 
     /// Called when visiting an `ExtensionDeclSyntax` node
     public override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        extensions.append(Extension(node))
+        var result = Extension(node)
+        assignLocations(&result, node: node)
+        extensions.append(result)
         return .visitChildren
     }
 
     /// Called when visiting a `FunctionDeclSyntax` node
     public override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        functions.append(Function(node))
+        var result = Function(node)
+        assignLocations(&result, node: node)
+        functions.append(result)
         return .skipChildren
     }
 
     /// Called when visiting an `IfConfigDeclSyntax` node
     public override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
-        conditionalCompilationBlocks.append(ConditionalCompilationBlock(node))
+        var result = ConditionalCompilationBlock(node)
+        assignLocations(&result, node: node)
+        conditionalCompilationBlocks.append(result)
         return .visitChildren
     }
 
     /// Called when visiting an `ImportDeclSyntax` node
     public override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
-        imports.append(Import(node))
+        var result = Import(node)
+        assignLocations(&result, node: node)
+        imports.append(result)
         return .skipChildren
     }
 
     /// Called when visiting an `InitializerDeclSyntax` node
     public override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        initializers.append(Initializer(node))
+        var result = Initializer(node)
+        assignLocations(&result, node: node)
+        initializers.append(result)
         return .skipChildren
     }
 
     /// Called when visiting an `OperatorDeclSyntax` node
     public override func visit(_ node: OperatorDeclSyntax) -> SyntaxVisitorContinueKind {
-        operators.append(Operator(node))
+        var result = Operator(node)
+        assignLocations(&result, node: node)
+        operators.append(result)
         return .skipChildren
     }
 
     /// Called when visiting a `PrecedenceGroupDeclSyntax` node
     public override func visit(_ node: PrecedenceGroupDeclSyntax) -> SyntaxVisitorContinueKind {
-        precedenceGroups.append(PrecedenceGroup(node))
+        var result = PrecedenceGroup(node)
+        assignLocations(&result, node: node)
+        precedenceGroups.append(result)
         return .skipChildren
     }
 
     /// Called when visiting a `ProtocolDeclSyntax` node
     public override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        protocols.append(Protocol(node))
+        var result = Protocol(node)
+        assignLocations(&result, node: node)
+        protocols.append(result)
         return .visitChildren
     }
 
     /// Called when visiting a `SubscriptDeclSyntax` node
     public override  func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
-        subscripts.append(Subscript(node))
+        var result = Subscript(node)
+        assignLocations(&result, node: node)
+        subscripts.append(result)
         return .skipChildren
     }
 
     /// Called when visiting a `StructDeclSyntax` node
     public override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        structures.append(Structure(node))
+        var result = Structure(node)
+        assignLocations(&result, node: node)
+        structures.append(result)
         return .visitChildren
     }
 
     /// Called when visiting a `TypealiasDeclSyntax` node
     public override func visit(_ node: TypealiasDeclSyntax) -> SyntaxVisitorContinueKind {
-        typealiases.append(Typealias(node))
+        var alias = Typealias(node)
+        assignLocations(&alias, node: node)
+        typealiases.append(alias)
         return .skipChildren
     }
 
     /// Called when visiting a `VariableDeclSyntax` node
     public override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        variables.append(contentsOf: Variable.variables(from: node))
+        let results = Variable.variables(from: node)
+        for var variable in results {
+            assignLocations(&variable, node: node)
+            variables.append(variable)
+        }
         return .skipChildren
+    }
+
+    // MARK: - Line Bound Helpers
+
+    func assignLocations<T: Declaration>(_ element: inout T, node: SyntaxProtocol) {
+        let bounds = locationsForNode(node)
+        switch element {
+        case var item as AssociatedType:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Class:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as ConditionalCompilationBlock:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Deinitializer:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Enumeration:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Enumeration.Case:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Extension:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Function:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Import:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Initializer:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Operator:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as PrecedenceGroup:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as `Protocol`:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Structure:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Subscript:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Typealias:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        case var item as Variable:
+            item.startLocation = bounds.start
+            item.endLocation = bounds.end
+            element = item as! T
+        default:
+            return
+        }
+    }
+
+    func locationsForNode(_ node: SyntaxProtocol) -> (start: DeclarationLocation, end: DeclarationLocation) {
+        guard
+            let converter = lineConverter,
+            let firstToken = node.firstToken,
+            let lastToken = node.lastToken
+        else {
+            return (.empty(), .empty())
+        }
+        let start = firstToken.startLocation(converter: converter)
+        let end = lastToken.endLocation(converter: converter)
+        // Line/Column is supposed to be -1 but it does not honour that.
+        let normalisedLocation: (Int?) -> Int? = { location in
+            guard let number = location else {
+                return nil
+            }
+            return max(0, number - 1)
+        }
+        let startLocation = DeclarationLocation(
+            line: normalisedLocation(start.line),
+            offset: normalisedLocation(start.column),
+            utf8Offset: start.offset
+        )
+        let endLocation = DeclarationLocation(
+            line: normalisedLocation(end.line),
+            offset: normalisedLocation(end.column),
+            utf8Offset: end.offset
+        )
+        return (startLocation, endLocation)
     }
 }

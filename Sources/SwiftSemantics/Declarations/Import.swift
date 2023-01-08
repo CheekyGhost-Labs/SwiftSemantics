@@ -12,7 +12,14 @@ public struct Import: Declaration, Hashable, Codable {
     public let keyword: String
 
     public let kind: String?
+
     public let pathComponents: [String]
+
+    /// The location the function declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
 }
 
 // MARK: - ExpressibleBySyntax

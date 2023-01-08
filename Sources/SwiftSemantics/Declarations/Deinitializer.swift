@@ -10,6 +10,12 @@ public struct Deinitializer: Declaration, Hashable, Codable {
 
     /// The declaration keyword (`"deinit"`).
     public let keyword: String
+
+    /// The location the function declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
 }
 
 // MARK: - ExpressibleBySyntax

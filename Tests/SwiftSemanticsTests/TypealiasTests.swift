@@ -90,11 +90,6 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-//        let closureType = try XCTUnwrap(`typealias`.closureType)
-//        XCTAssertFalse(closureType.isVoidInput)
-//        XCTAssertTrue(closureType.isVoidOutput)
-//        XCTAssertEqual(closureType.rawInput, "(T)")
-//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithVoidInputClosure() throws {
@@ -119,11 +114,6 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-//        let closureType = try XCTUnwrap(`typealias`.closureType)
-//        XCTAssertTrue(closureType.isVoidInput)
-//        XCTAssertTrue(closureType.isVoidOutput)
-//        XCTAssertEqual(closureType.rawInput, "(Void)")
-//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithEmptyInputClosure() throws {
@@ -148,11 +138,6 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-//        let closureType = try XCTUnwrap(`typealias`.closureType)
-//        XCTAssertFalse(closureType.isVoidInput)
-//        XCTAssertTrue(closureType.isVoidOutput)
-//        XCTAssertEqual(closureType.rawInput, "()")
-//        XCTAssertEqual(closureType.rawOutput, "Void")
     }
 
     func testTypealiasDeclarationsWithTypeClosure() throws {
@@ -177,15 +162,39 @@ final class TypealiasTests: XCTestCase {
         XCTAssertEqual(`typealias`.genericRequirements[0].relation, .conformance)
         XCTAssertEqual(`typealias`.genericRequirements[0].rightTypeIdentifier, "Numeric")
         XCTAssertEqual(`typealias`.parent, Parent(keyword: "struct", name: "SampleStruct"))
-//        let closureType = try XCTUnwrap(`typealias`.closureType)
-//        XCTAssertFalse(closureType.isVoidInput)
-//        XCTAssertFalse(closureType.isVoidOutput)
-//        XCTAssertEqual(closureType.rawInput, "(T, String)")
-//        XCTAssertEqual(closureType.rawOutput, "String")
     }
 
-    static var allTests = [
-        ("testTypealiasDeclarationsWithGenericParameter", testTypealiasDeclarationsWithGenericParameter),
-        ("testTypealiasDeclarationsWithGenericRequirement", testTypealiasDeclarationsWithGenericRequirement),
-    ]
+
+    func testSourceLocations() throws {
+        let source = #"""
+        typealias SortableArray<T: Comparable> = Array<T>
+        struct SampleStruct {
+            typealias SomeThing<T> = (T, String) -> String where T: Numeric
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Typealias.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+        XCTAssertEqual(declarations[0].startLocation.line, 0)
+        XCTAssertEqual(declarations[0].startLocation.utf8Offset, 0)
+        XCTAssertEqual(declarations[0].endLocation.line, 0)
+        XCTAssertEqual(declarations[0].endLocation.utf8Offset, 49)
+        XCTAssertEqual(declarations[0].startLocation.column, 0)
+        XCTAssertEqual(declarations[0].endLocation.column, 49)
+        XCTAssertEqual(
+            declarations[0].extractFromSource(source),
+            "typealias SortableArray<T: Comparable> = Array<T>"
+        )
+        XCTAssertEqual(declarations[1].startLocation.line, 2)
+        XCTAssertEqual(declarations[1].startLocation.utf8Offset, 76)
+        XCTAssertEqual(declarations[1].endLocation.line, 2)
+        XCTAssertEqual(declarations[1].endLocation.utf8Offset, 139)
+        XCTAssertEqual(declarations[1].startLocation.column, 4)
+        XCTAssertEqual(declarations[1].endLocation.column, 67)
+        XCTAssertEqual(
+            declarations[1].extractFromSource(source),
+            "typealias SomeThing<T> = (T, String) -> String where T: Numeric"
+        )
+    }
 }

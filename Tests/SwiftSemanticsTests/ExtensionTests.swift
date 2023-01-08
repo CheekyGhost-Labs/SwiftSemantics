@@ -69,6 +69,47 @@ final class ExtensionTests: XCTestCase {
         XCTAssertEqual(extensions[0].inheritance[0], "Hashable")
     }
 
+    func testSourceLocations() throws {
+        let source = #"""
+        extension Collection where Element: Comparable {
+            func hasAny(lessThan element: Element) -> Bool {
+                guard !isEmpty else { return false }
+                return sorted().first < element
+            }
+        }
+          extension String {
+            enum Sample {
+            }
+          }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Extension.self, source: source)
+
+        XCTAssertEqual(declarations.count, 2)
+        XCTAssertEqual(declarations[0].startLocation.line, 0)
+        XCTAssertEqual(declarations[0].endLocation.line, 5)
+        XCTAssertEqual(declarations[0].startLocation.column, 0)
+        XCTAssertEqual(declarations[0].endLocation.column, 1)
+        XCTAssertEqual(declarations[0].startLocation.utf8Offset, 0)
+        XCTAssertEqual(declarations[0].endLocation.utf8Offset, 194)
+        XCTAssertEqual(
+            declarations[0].extractFromSource(source),
+            "extension Collection where Element: Comparable {\n    func hasAny(lessThan element: Element) -> Bool {\n        guard !isEmpty else { return false }\n        return sorted().first < element\n    }\n}"
+        )
+        XCTAssertEqual(declarations[0].startLocation.column, 0)
+        XCTAssertEqual(declarations[0].endLocation.column, 1)
+        XCTAssertEqual(declarations[1].startLocation.line, 6)
+        XCTAssertEqual(declarations[1].endLocation.line, 9)
+        XCTAssertEqual(declarations[1].startLocation.column, 2)
+        XCTAssertEqual(declarations[1].endLocation.column, 3)
+        XCTAssertEqual(declarations[1].startLocation.utf8Offset, 197)
+        XCTAssertEqual(declarations[1].endLocation.utf8Offset, 243)
+        XCTAssertEqual(
+            declarations[1].extractFromSource(source),
+            "extension String {\n    enum Sample {\n    }\n  }"
+        )
+    }
+
     static var allTests = [
         ("testExtensionDeclarationWithGenericRequirements", testExtensionDeclarationWithGenericRequirements),
         ("testFunctionDeclarationWithinExtension", testFunctionDeclarationWithinExtension),

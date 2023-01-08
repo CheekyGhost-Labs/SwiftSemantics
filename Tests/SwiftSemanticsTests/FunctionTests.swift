@@ -138,23 +138,54 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(extended.parent, Parent(keyword: "extension", name: "Sample"))
     }
 
-    func testFunctionWithAttributesWillStrip() throws {
+    func testSourceLocations() throws {
         let source = #"""
         struct Sample {
-            func sayHello(_ handler: @escaping (Int) -> Void) { print("Hello World") }
+            func sayHello(_ handler: @escaping (Int) -> Void) {
+                print("Hello World")
+            }
             func sayHelloAgain(_ handler: @autoclosure () -> Any) { print("Hello Again World") }
+        }
+        enum Thing {
+            func sample() {
+                // no-op
+            }
         }
         """#
 
         let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
 
-        XCTAssertEqual(declarations.count, 2)
-
-//        let original = declarations[0]
-//        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "(Int) -> Void")
-//
-//        let repeated = declarations[1]
-//        XCTAssertEqual(repeated.signature.input[0].typeWithoutAttributes, "() -> Any")
+        XCTAssertEqual(declarations.count, 3)
+        XCTAssertEqual(declarations[0].startLocation.line, 1)
+        XCTAssertEqual(declarations[0].startLocation.utf8Offset, 20)
+        XCTAssertEqual(declarations[0].endLocation.line, 3)
+        XCTAssertEqual(declarations[0].endLocation.utf8Offset, 106)
+        XCTAssertEqual(declarations[0].startLocation.column, 4)
+        XCTAssertEqual(declarations[0].endLocation.column, 5)
+        XCTAssertEqual(
+            declarations[0].extractFromSource(source),
+            "func sayHello(_ handler: @escaping (Int) -> Void) {\n        print(\"Hello World\")\n    }"
+        )
+        XCTAssertEqual(declarations[1].startLocation.line, 4)
+        XCTAssertEqual(declarations[1].startLocation.utf8Offset, 111)
+        XCTAssertEqual(declarations[1].endLocation.line, 4)
+        XCTAssertEqual(declarations[1].endLocation.utf8Offset, 195)
+        XCTAssertEqual(declarations[1].startLocation.column, 4)
+        XCTAssertEqual(declarations[1].endLocation.column, 88)
+        XCTAssertEqual(
+            declarations[1].extractFromSource(source),
+            "func sayHelloAgain(_ handler: @autoclosure () -> Any) { print(\"Hello Again World\") }"
+        )
+        XCTAssertEqual(declarations[2].startLocation.line, 7)
+        XCTAssertEqual(declarations[2].startLocation.utf8Offset, 215)
+        XCTAssertEqual(declarations[2].endLocation.line, 9)
+        XCTAssertEqual(declarations[2].endLocation.utf8Offset, 253)
+        XCTAssertEqual(declarations[2].startLocation.column, 4)
+        XCTAssertEqual(declarations[2].endLocation.column, 5)
+        XCTAssertEqual(
+            declarations[2].extractFromSource(source),
+            "func sample() {\n        // no-op\n    }"
+        )
     }
 
     func testFunctionWithInoutAttributesWillStrip() throws {
@@ -176,6 +207,8 @@ final class FunctionTests: XCTestCase {
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
         ("testOperatorFunctionDeclarationsWithParent", testOperatorFunctionDeclarationsWithParent),
+        ("testFunctionLineBounds", testFunctionLineBounds),
+        ("testFunctionWithInoutAttributesWillStrip", testFunctionWithInoutAttributesWillStrip),
     ]
 }
 

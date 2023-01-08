@@ -27,6 +27,12 @@ public struct Protocol: Declaration, Hashable, Codable {
      ```
     */
     public let inheritance: [String]
+
+    /// The location the function declaration starts on.
+    public internal(set) var startLocation: DeclarationLocation = .empty()
+
+    /// The location the declaration closes/ends on.
+    public internal(set) var endLocation: DeclarationLocation = .empty()
 }
 
 // MARK: - ExpressibleBySyntax
