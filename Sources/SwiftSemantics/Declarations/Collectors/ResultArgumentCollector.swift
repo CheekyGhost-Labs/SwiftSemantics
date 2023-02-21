@@ -1,14 +1,14 @@
 //
-//  TupleArgumentCollector.swift
+//  ResultArgumentCollector.swift
 //  
 //
-//  Created by Michael O'Brien on 3/12/2022.
+//  Created by Michael O'Brien on 21/2/2023.
 //
 
 import SwiftSyntax
 
-/// Takes a `TupleTypeElementListSyntax` node and walks through the children to collect an array of `ParameterType` items.
-class TupleArgumentCollector: Collector {
+/// Takes a `GenericArgumentClauseSyntax` node and walks through the children to collect an array of `ParameterType` items.
+class ResultArgumentCollector: Collector {
 
     // MARK: - Properties
 
@@ -16,19 +16,19 @@ class TupleArgumentCollector: Collector {
     private(set) var parameters: [any ParameterType] = []
 
     /// The root node being iterated over
-    var node: TupleTypeElementListSyntax
+    var node: GenericArgumentClauseSyntax
 
     // MARK: - Lifecycle
 
-    required init(_ node: TupleTypeElementListSyntax) {
+    required init(_ node: GenericArgumentClauseSyntax) {
         self.node = node
         super.init()
     }
 
     // MARK: - Helpers
 
-    static func collect(_ node: TupleTypeElementListSyntax) -> [any ParameterType] {
-        let collector = TupleArgumentCollector(node)
+    static func collect(_ node: GenericArgumentClauseSyntax) -> [any ParameterType] {
+        let collector = ResultArgumentCollector(node)
         return collector.collect()
     }
 
@@ -38,6 +38,18 @@ class TupleArgumentCollector: Collector {
     }
 
     // MARK: - Overrides
+
+    override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
+        return .visitChildren
+    }
+
+    override func visit(_ node: GenericArgumentListSyntax) -> SyntaxVisitorContinueKind {
+        return .visitChildren
+    }
+
+    override func visit(_ node: GenericArgumentSyntax) -> SyntaxVisitorContinueKind {
+        return .visitChildren
+    }
 
     override func visit(_ node: TupleTypeSyntax) -> SyntaxVisitorContinueKind {
         let parameter = TupleParameter(node)

@@ -207,7 +207,6 @@ final class FunctionTests: XCTestCase {
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
         ("testOperatorFunctionDeclarationsWithParent", testOperatorFunctionDeclarationsWithParent),
-        ("testFunctionLineBounds", testFunctionLineBounds),
         ("testFunctionWithInoutAttributesWillStrip", testFunctionWithInoutAttributesWillStrip),
     ]
 }

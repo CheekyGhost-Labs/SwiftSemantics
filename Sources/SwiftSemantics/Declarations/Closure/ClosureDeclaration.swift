@@ -37,13 +37,14 @@ public struct ClosureDeclaration: ClosureType, Codable, Hashable, Equatable, Cus
 
     public init(_ node: FunctionTypeSyntax) {
         declaration = node.description.trimmed
+        let components = resolveClosureComponents(from: node)
         let inputParameters = ClosureInputParameterCollector.collect(node)
         inputs = inputParameters.parameters
-        inputType = inputParameters.type
+        inputType = components.input
         isVoidInput = inputParameters.isVoid
         let outputParameters = ClosureOutputParameterCollector.collect(node)
         outputs = outputParameters.parameters
-        outputType = outputParameters.type
+        outputType = components.output
         isVoidOutput = outputParameters.isVoid
         // isOptional
         var nextParent = node.parent
@@ -77,5 +78,13 @@ public struct ClosureDeclaration: ClosureType, Codable, Hashable, Equatable, Cus
         isOptional = parameter.isOptional
         isAutoEscaping = parameter.isAutoEscaping
         isEscaping = parameter.isEscaping
+    }
+
+    func resolveClosureComponents(from node: FunctionTypeSyntax) -> (input: String, output: String) {
+        let description = node.children.map(\.description).joined()
+        let components = description.components(separatedBy: "->")
+        let input = (components.first ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let output = (components.last ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return (input, output)
     }
 }
