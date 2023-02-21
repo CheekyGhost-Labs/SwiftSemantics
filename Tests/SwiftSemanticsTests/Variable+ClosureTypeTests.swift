@@ -51,6 +51,106 @@ final class VariableClosureTypeTests: XCTestCase {
         }
     }
 
+    func test_closureVoidInput_resultInput() throws {
+        let source = #"""
+        let resultInput: ((Result<String, Error>, Int) -> ())
+        let resultInput: ((Result<String, Error>?, Int) -> ())?
+        let resultInput: ((Result<String?, Error>?, Int, String) -> ())
+        """#
+
+        let elements = try SyntaxParser.declarations(of: Variable.self, source: source)
+        for (index, declaration) in elements.enumerated() {
+            XCTAssert(declaration.attributes.isEmpty)
+            XCTAssertNil(declaration.initializedValue)
+            let closureType = try XCTUnwrap(declaration.closureType)
+            switch index {
+            case 0:
+                XCTAssertEqual(declaration.typeAnnotation, "((Result<String, Error>, Int) -> ())")
+                XCTAssertEqual(declaration.description, "let resultInput: ((Result<String, Error>, Int) -> ())")
+                XCTAssertFalse(closureType.isOptional)
+                XCTAssertFalse(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.inputType, "(Result<String, Error>, Int)")
+                XCTAssertEqual(closureType.inputs[0].type, "Result<String, Error>")
+                XCTAssertFalse(closureType.inputs[0].isOptional)
+                XCTAssertEqual(closureType.inputs[1].type, "Int")
+                XCTAssertEqual(closureType.inputs.count, 2)
+            case 1:
+                XCTAssertEqual(declaration.typeAnnotation, "((Result<String, Error>?, Int) -> ())?")
+                XCTAssertEqual(declaration.description, "let resultInput: ((Result<String, Error>?, Int) -> ())?")
+                XCTAssertTrue(closureType.isOptional)
+                XCTAssertTrue(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.inputType, "(Result<String, Error>?, Int)")
+                XCTAssertEqual(closureType.inputs[0].type, "Result<String, Error>?")
+                XCTAssertTrue(closureType.inputs[0].isOptional)
+                XCTAssertEqual(closureType.inputs[1].type, "Int")
+                XCTAssertEqual(closureType.inputs.count, 2)
+            case 2:
+                XCTAssertEqual(declaration.typeAnnotation, "((Result<String?, Error>?, Int, String) -> ())")
+                XCTAssertEqual(declaration.description, "let resultInput: ((Result<String?, Error>?, Int, String) -> ())")
+                XCTAssertFalse(closureType.isOptional)
+                XCTAssertFalse(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.inputType, "(Result<String?, Error>?, Int, String)")
+                XCTAssertEqual(closureType.inputs[0].type, "Result<String?, Error>?")
+                XCTAssertTrue(closureType.inputs[0].isOptional)
+                XCTAssertEqual(closureType.inputs[1].type, "Int")
+                XCTAssertEqual(closureType.inputs[2].type, "String")
+                XCTAssertEqual(closureType.inputs.count, 3)
+            default: break
+            }
+        }
+    }
+
+    func test_closureVoidInput_resultOutput() throws {
+        let source = #"""
+        let resultInput: (() -> Result<String, Error>)
+        let resultInput: (() -> (Result<String, Error>?, Int))?
+        let resultInput: (() -> (Result<String, Error>, Int?, String))
+        """#
+
+        let elements = try SyntaxParser.declarations(of: Variable.self, source: source)
+        for (index, declaration) in elements.enumerated() {
+            XCTAssert(declaration.attributes.isEmpty)
+            XCTAssertNil(declaration.initializedValue)
+            let closureType = try XCTUnwrap(declaration.closureType)
+            switch index {
+            case 0:
+                XCTAssertEqual(declaration.typeAnnotation, "(() -> Result<String, Error>)")
+                XCTAssertEqual(declaration.description, "let resultInput: (() -> Result<String, Error>)")
+                XCTAssertFalse(closureType.isOptional)
+                XCTAssertFalse(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.outputType, "Result<String, Error>")
+                XCTAssertEqual(closureType.outputs[0].type, "Result<String, Error>")
+                XCTAssertFalse(closureType.outputs[0].isOptional)
+                XCTAssertEqual(closureType.outputs.count, 1)
+            case 1:
+                XCTAssertEqual(declaration.typeAnnotation, "(() -> (Result<String, Error>?, Int))?")
+                XCTAssertEqual(declaration.description, "let resultInput: (() -> (Result<String, Error>?, Int))?")
+                XCTAssertTrue(closureType.isOptional)
+                XCTAssertTrue(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.outputType, "(Result<String, Error>?, Int)")
+                XCTAssertEqual(closureType.outputs[0].type, "Result<String, Error>?")
+                XCTAssertTrue(closureType.outputs[0].isOptional)
+                XCTAssertEqual(closureType.outputs[1].type, "Int")
+                XCTAssertFalse(closureType.outputs[1].isOptional)
+                XCTAssertEqual(closureType.outputs.count, 2)
+            case 2:
+                XCTAssertEqual(declaration.typeAnnotation, "(() -> (Result<String, Error>, Int?, String))")
+                XCTAssertEqual(declaration.description, "let resultInput: (() -> (Result<String, Error>, Int?, String))")
+                XCTAssertFalse(closureType.isOptional)
+                XCTAssertFalse(closureType.isAutoEscaping)
+                XCTAssertEqual(closureType.outputType, "(Result<String, Error>, Int?, String)")
+                XCTAssertEqual(closureType.outputs[0].type, "Result<String, Error>")
+                XCTAssertFalse(closureType.outputs[0].isOptional)
+                XCTAssertEqual(closureType.outputs[1].type, "Int?")
+                XCTAssertTrue(closureType.outputs[1].isOptional)
+                XCTAssertEqual(closureType.outputs[2].type, "String")
+                XCTAssertFalse(closureType.outputs[2].isOptional)
+                XCTAssertEqual(closureType.outputs.count, 3)
+            default: break
+            }
+        }
+    }
+
     func test_closureVoidInput_standard() throws {
         let source = #"""
         let voidInput: () -> ()

@@ -58,13 +58,14 @@ public struct ClosureParameter: ParameterType, ClosureType {
         type = node.description
         typeWithoutAttributes = Utils.stripAttributes(from: node.description)
         declaration = node.description.trimmed
+        let components = resolveClosureComponents(from: node)
         let inputParameters = ClosureArgumentCollector.collectInputs(node)
         inputs = inputParameters.parameters
-        inputType = inputParameters.type
+        inputType = components.input
         isVoidInput = inputParameters.isVoid
         let outputParameters = ClosureArgumentCollector.collectOutputs(node)
         outputs = outputParameters.parameters
-        outputType = outputParameters.type
+        outputType = components.output
         isVoidOutput = outputParameters.isVoid
         // Assign parameter values if parent is present
         if let parent = resolveParentFunctionSyntax(from: node._syntaxNode) {
@@ -90,6 +91,14 @@ public struct ClosureParameter: ParameterType, ClosureType {
     }
 
     // MARK: - Lifecycle Utilities
+
+    func resolveClosureComponents(from node: FunctionTypeSyntax) -> (input: String, output: String) {
+        let description = node.children.map(\.description).joined()
+        let components = description.components(separatedBy: "->")
+        let input = (components.first ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let output = (components.last ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return (input, output)
+    }
 
     func resolveParentFunctionSyntax(from node: Syntax) -> FunctionParameterSyntax? {
         var parentNode = node.parent

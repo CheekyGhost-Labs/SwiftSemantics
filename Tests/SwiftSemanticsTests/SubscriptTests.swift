@@ -128,7 +128,6 @@ final class SubscriptTests: XCTestCase {
     static var allTests = [
         ("testSubscriptDeclaration", testSubscriptDeclaration),
         ("testSubscriptDeclarationWithGenericParameters", testSubscriptDeclarationWithGenericParameters),
-        ("testSubscriptDeclarationWithGenericRequirements", testSubscriptDeclarationWithGenericRequirements),
-        ("testFunctionLineBounds", testFunctionLineBounds)
+        ("testSubscriptDeclarationWithGenericRequirements", testSubscriptDeclarationWithGenericRequirements)
     ]
 }

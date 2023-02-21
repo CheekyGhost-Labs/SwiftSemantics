@@ -12,9 +12,6 @@ class ClosureArgumentCollector: Collector {
 
     // MARK: - Properties
 
-    /// The resolved type string for the closure input tuple/element.
-    fileprivate(set) var type: String = ""
-
     /// Array of collected input parameters.
     fileprivate(set) var arguments: [any ParameterType] = []
 
@@ -42,25 +39,25 @@ class ClosureArgumentCollector: Collector {
 
     // MARK: - Helpers
 
-    static func collectInputs(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], type: String, isVoid: Bool) {
+    static func collectInputs(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], isVoid: Bool) {
         let collector = ClosureInputParameterCollector(node)
         return collector.collect()
     }
     
-    static func collectOutputs(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], type: String, isVoid: Bool) {
+    static func collectOutputs(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], isVoid: Bool) {
         let collector = ClosureOutputParameterCollector(node)
         return collector.collect()
     }
     
-    static func collect(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], type: String, isVoid: Bool) {
+    static func collect(_ node: FunctionTypeSyntax) -> (parameters: [any ParameterType], isVoid: Bool) {
         let collector = Self(node)
         return collector.collect()
     }
 
     @discardableResult
-    func collect() -> (parameters: [any ParameterType], type: String, isVoid: Bool) {
+    func collect() -> (parameters: [any ParameterType], isVoid: Bool) {
         walk(node._syntaxNode)
-        return (arguments, type, isVoid)
+        return (arguments, isVoid)
     }
 
     // MARK: - Overrides
@@ -92,8 +89,13 @@ class ClosureArgumentCollector: Collector {
     }
 
     override func visit(_ node: SimpleTypeIdentifierSyntax) -> SyntaxVisitorContinueKind {
+        if node.firstToken?.text == "Result" {
+            // Result parameter
+            let parameter = ResultParameter(node)
+            arguments.append(parameter)
+            return .skipChildren
+        }
         let parameter = StandardParameter(node)
-        type = node.description
         arguments.append(parameter)
         return .skipChildren
     }
@@ -130,11 +132,9 @@ class ClosureInputParameterCollector: ClosureArgumentCollector {
                 }
                 return Utils.isVoidType(parameter.arguments[0].type) ? .skipChildren : .visitChildren
             } else if parameter.arguments.isEmpty {
-                type = parameter.description
                 return .skipChildren
             }
             arguments.append(parameter)
-            type = parameter.description
             return .skipChildren
         }
         return .visitChildren
@@ -152,18 +152,17 @@ class ClosureOutputParameterCollector: ClosureArgumentCollector {
     
     // MARK: - Overrides
 
-    override func collect() -> (parameters: [any ParameterType], type: String, isVoid: Bool) {
+    override func collect() -> (parameters: [any ParameterType], isVoid: Bool) {
         super.collect()
         if arguments.count == 1, Utils.isVoidType(arguments[0].type) {
             arguments = []
         }
-        return (arguments, type, isVoid)
+        return (arguments, isVoid)
     }
 
     override func visit(_ node: TupleTypeSyntax) -> SyntaxVisitorContinueKind {
         guard arrowDetected else { return .skipChildren }
         if !rootNodeDetected {
-            type = node.description
             rootNodeDetected = true
         }
         // In any wrapped scenario the first `tuple` is the container for result elements. These arguments
@@ -194,7 +193,6 @@ class ClosureOutputParameterCollector: ClosureArgumentCollector {
     override func visit(_ node: TokenSyntax) -> SyntaxVisitorContinueKind {
         guard arrowDetected else { return super.visit(node) }
         if node.tokenKind == .postfixQuestionMark {
-            type += node.text
             return .skipChildren
         }
         return .skipChildren
@@ -207,7 +205,6 @@ class ClosureOutputParameterCollector: ClosureArgumentCollector {
     override func visit(_ node: SimpleTypeIdentifierSyntax) -> SyntaxVisitorContinueKind {
         guard arrowDetected else { return .skipChildren }
         if !rootNodeDetected {
-            type = node.description
             rootNodeDetected = true
         }
         return super.visit(node)
