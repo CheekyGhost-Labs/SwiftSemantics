@@ -28,6 +28,21 @@ public struct Protocol: Declaration, Hashable, Codable {
     */
     public let inheritance: [String]
 
+    /**
+     The primary associated types for the declaration.
+
+     For example,
+     the following declaration of protocol `SomeProtocol`
+     has a two primary associated types
+     whose types are `Parameter` and `Object`
+
+
+     ```swift
+     protocol SomeProtocol<Parameter, Object> {}
+     ```
+     */
+    public let primaryAssociatedTypes: [String]
+
     /// The location the function declaration starts on.
     public internal(set) var startLocation: DeclarationLocation = .empty()
 
@@ -45,6 +60,9 @@ extension Protocol: ExpressibleBySyntax {
         keyword = node.protocolKeyword.text.trimmed
         name = node.identifier.text.trimmed
         inheritance = node.inheritanceClause?.inheritedTypeCollection.map { $0.typeName.description.trimmed } ?? []
+        // Get list of primary associated type tokens
+        let primaryTypes = node.primaryAssociatedTypeClause?.primaryAssociatedTypeList.map(\.name) ?? []
+        primaryAssociatedTypes = primaryTypes.map(\.text.trimmed)
     }
 }
 
