@@ -17,6 +17,23 @@ final class ProtocolTests: XCTestCase {
         XCTAssertEqual(declaration.name, "P")
     }
 
+    func testProtocolDeclarationWithPrimaryAssociatedTypes() throws {
+        let source = #"""
+        public protocol P<Parameter, Object> {}
+        public protocol P<Parameter> {}
+        public protocol P {}
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Protocol.self, source: source)
+        XCTAssertEqual(declarations.count, 3)
+        let declaration = declarations.first!
+
+        XCTAssert(declaration.attributes.isEmpty)
+        XCTAssertEqual(declarations[0].primaryAssociatedTypes, ["Parameter", "Object"])
+        XCTAssertEqual(declarations[1].primaryAssociatedTypes, ["Parameter"])
+        XCTAssertEqual(declarations[2].primaryAssociatedTypes, [])
+    }
+
     func testSourceLocations() throws {
         let source = #"""
         public protocol A {}
