@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2023-04-08
+
+### Changed
+
+- Adopting SwiftSyntax 5.8 (Xcode 14.3 + Swift 5.8 support) 
+- Removed unsupported syntax visitor types
+- Updated inits and references to use .fixedUp viewMode (as suggested for source code assessment tasks)
+- Breaking change - this uses the new version of SwiftSyntax written in swift and no longer has dependencies on libraries in the Swift toolchain
+
 ## [2.2.0] - 2023-04-04
 
 ### Changed
