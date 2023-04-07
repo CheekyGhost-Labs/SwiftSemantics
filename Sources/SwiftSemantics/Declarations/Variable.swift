@@ -101,8 +101,8 @@ extension Variable: ExpressibleBySyntax {
         self.parent = Parent(node.resolveRootParent())
         self.hasSetter = accessors.contains(where: { $0.kind == .set })
         // Standard optional check
-        if let typeSyntax = node.children.first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
-            isOptional = typeSyntax.children.contains(where: { $0.syntaxNodeType == OptionalTypeSyntax.self })
+        if let typeSyntax = node.children(viewMode: .fixedUp).first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
+            isOptional = typeSyntax.children(viewMode: .fixedUp).contains(where: { $0.syntaxNodeType == OptionalTypeSyntax.self })
         } else {
             self.isOptional = false
         }
@@ -114,8 +114,8 @@ extension Variable: ExpressibleBySyntax {
             self.modifiersWithKeyword = "\(modifiers.joined(separator: " ")) \(keyword)"
         }
         // Check for immediate closure
-        if let typeAnnotationSyntax = node.children.first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
-            if typeAnnotationSyntax.children.contains(where: { $0.syntaxNodeType == FunctionTypeSyntax.self }) {
+        if let typeAnnotationSyntax = node.children(viewMode: .fixedUp).first(where: { $0.syntaxNodeType == TypeAnnotationSyntax.self }) {
+            if typeAnnotationSyntax.children(viewMode: .fixedUp).contains(where: { $0.syntaxNodeType == FunctionTypeSyntax.self }) {
                 closureType = ClosureDeclarationCollector.collect(node._syntaxNode)
                 return
             }
@@ -144,7 +144,7 @@ extension SyntaxProtocol {
 
     func printDescription() {
         var results: [String] = []
-        for (_, child) in children.enumerated() {
+        for (_, child) in children(viewMode: .fixedUp).enumerated() {
             results.append("\(0): \(child.syntaxNodeType)")
             traverseNode(child, indent: 0, results: &results)
         }
@@ -153,7 +153,7 @@ extension SyntaxProtocol {
     }
 
     func traverseNode(_ node: any SyntaxProtocol, indent: Int = 0, results: inout [String]) {
-        for (_, child) in node.children.enumerated() {
+        for (_, child) in node.children(viewMode: .fixedUp).enumerated() {
             let prefix = String(Array(repeating: " ", count: indent + (indent + 1)))
             results.append("\(prefix)\(indent).\(indent + 1): \(child.syntaxNodeType)")
             traverseNode(child, indent: indent + 1, results: &results)

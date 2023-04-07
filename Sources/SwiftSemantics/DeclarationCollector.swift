@@ -75,8 +75,9 @@ open class DeclarationCollector: SyntaxVisitor {
     /// Source line location converter assigned when the `walk(_:sourceBuffer)` is used.
     var lineConverter: SourceLocationConverter?
 
-    /// Creates a new declaration collector.
-    public override init() {}
+    public convenience init() {
+        self.init(viewMode: .fixedUp)
+    }
 
     // MARK: - SyntaxVisitor
 

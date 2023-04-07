@@ -61,7 +61,7 @@ public struct ResultParameter: ParameterType {
 
     func resolveGenericParameters(_ node: SimpleTypeIdentifierSyntax) -> [any ParameterType] {
         guard
-            let syntax = node.children.first(where: { $0._syntaxNode.syntaxNodeType == GenericArgumentClauseSyntax.self }),
+            let syntax = node.children(viewMode: .fixedUp).first(where: { $0._syntaxNode.syntaxNodeType == GenericArgumentClauseSyntax.self }),
             let genericArgumentClause = GenericArgumentClauseSyntax(syntax._syntaxNode)
         else {
             return []

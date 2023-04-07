@@ -22,7 +22,7 @@ class TupleArgumentCollector: Collector {
 
     required init(_ node: TupleTypeElementListSyntax) {
         self.node = node
-        super.init()
+        super.init(viewMode: .fixedUp)
     }
 
     // MARK: - Helpers

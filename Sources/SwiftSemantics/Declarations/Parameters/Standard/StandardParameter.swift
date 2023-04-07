@@ -40,8 +40,14 @@ public struct StandardParameter: ParameterType {
         secondName = node.secondName?.text.trimmed
         type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
+        if !variadic, node.children(viewMode: .fixedUp).contains(where: { $0.syntaxNodeType == PackExpansionTypeSyntax.self }) {
+            variadic = true
+        }
+        if variadic {
+            type = type?.replacingOccurrences(of: "...", with: "")
+        }
         defaultArgument = node.defaultArgument?.value.description.trimmed
-        isInOut = node.type?.tokens.contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
+        isInOut = node.type?.tokens(viewMode: .fixedUp).contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
         isOptional = Utils.isTypeOptional(type)
         preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
         typeWithoutAttributes = Utils.stripAttributes(from: type)

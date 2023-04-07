@@ -21,7 +21,7 @@ class FunctionParameterCollector: Collector {
 
     required init(_ node: FunctionParameterListSyntax) {
         self.node = node
-        super.init()
+        super.init(viewMode: .fixedUp)
     }
 
     // MARK: - Helpers

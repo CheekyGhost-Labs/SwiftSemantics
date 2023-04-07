@@ -10,26 +10,6 @@ import SwiftSyntax
 // Defaults to skipping children for collectors to opt into what it needs to
 class Collector: SyntaxVisitor {
 
-    override func visit(_ node: UnknownDeclSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: UnknownExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: UnknownStmtSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: UnknownTypeSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: UnknownPatternSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
     override func visit(_ node: CodeBlockItemSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
@@ -111,30 +91,6 @@ class Collector: SyntaxVisitor {
     }
 
     override func visit(_ node: ExprListSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundLineExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundFileExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundFileIDExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundFilePathExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundFunctionExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: PoundDsohandleExprSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
 
@@ -294,35 +250,11 @@ class Collector: SyntaxVisitor {
         return .skipChildren
     }
 
-    override func visit(_ node: KeyPathBaseExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ObjcNamePieceSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ObjcNameSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ObjcKeyPathExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ObjcSelectorExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
     override func visit(_ node: PostfixIfConfigExprSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
 
     override func visit(_ node: EditorPlaceholderExprSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ObjectLiteralExprSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
 
@@ -522,10 +454,6 @@ class Collector: SyntaxVisitor {
         return .skipChildren
     }
 
-    override func visit(_ node: IdentifierListSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
     override func visit(_ node: OperatorPrecedenceAndTypesSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
@@ -646,10 +574,6 @@ class Collector: SyntaxVisitor {
         return .skipChildren
     }
 
-    override func visit(_ node: BackDeployAttributeSpecListSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
     override func visit(_ node: BackDeployVersionListSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
@@ -767,14 +691,6 @@ class Collector: SyntaxVisitor {
     }
 
     override func visit(_ node: IfStmtSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ElseIfContinuationSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: ElseBlockSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
 
@@ -1000,10 +916,6 @@ class Collector: SyntaxVisitor {
     }
 
     override func visit(_ token: TokenSyntax) -> SyntaxVisitorContinueKind {
-        return .skipChildren
-    }
-
-    override func visit(_ node: UnknownSyntax) -> SyntaxVisitorContinueKind {
         return .skipChildren
     }
 }

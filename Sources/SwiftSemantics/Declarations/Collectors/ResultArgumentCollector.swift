@@ -22,7 +22,7 @@ class ResultArgumentCollector: Collector {
 
     required init(_ node: GenericArgumentClauseSyntax) {
         self.node = node
-        super.init()
+        super.init(viewMode: .fixedUp)
     }
 
     // MARK: - Helpers

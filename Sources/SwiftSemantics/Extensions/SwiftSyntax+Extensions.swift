@@ -39,11 +39,15 @@ extension DeclSyntaxProtocol {
         var parentNode = parent
         while parentNode != nil {
             parentNode = parentNode?.parent
-            if let node = parentNode, node.tokens.contains(where: {
+            if let node = parentNode, node.tokens(viewMode: .fixedUp).contains(where: {
                 validParentTokens.contains($0.tokenKind) && $0.isToken
             }) {
-                if node.indexInParent == 0 {
-                    if parentNode?.children.first(where: { $0.tokens.contains(where: { validParentTokens.contains($0.tokenKind) }) }) != nil {
+                if [0, 1].contains(node.indexInParent) {
+                    if parentNode?.children(viewMode: .fixedUp).first(where: {
+                        $0.tokens(viewMode: .fixedUp).contains(where: {
+                            validParentTokens.contains($0.tokenKind)
+                        })
+                    }) != nil {
                         break
                     }
                 }
@@ -66,11 +70,15 @@ extension SyntaxProtocol {
         var parentNode = parent
         while parentNode != nil {
             parentNode = parentNode?.parent
-            if let node = parentNode, node.tokens.contains(where: {
+            if let node = parentNode, node.tokens(viewMode: .fixedUp).contains(where: {
                 validParentTokens.contains($0.tokenKind) && $0.isToken
             }) {
-                if node.indexInParent == 0 {
-                    if parentNode?.children.first(where: { $0.tokens.contains(where: { validParentTokens.contains($0.tokenKind) }) }) != nil {
+                if [0, 1].contains(node.indexInParent) {
+                    if parentNode?.children(viewMode: .fixedUp).first(where: {
+                        $0.tokens(viewMode: .fixedUp).contains(where: {
+                            validParentTokens.contains($0.tokenKind)
+                        })
+                    }) != nil {
                         break
                     }
                 }
@@ -81,8 +89,8 @@ extension SyntaxProtocol {
 
     func resolveParentType() -> String? {
         let parentNode = resolveRootParent()
-        let validChild = parentNode?.children.first(where: {
-            $0.tokens.contains(where: { validParentTokens.contains($0.tokenKind) })
+        let validChild = parentNode?.children(viewMode: .fixedUp).first(where: {
+            $0.tokens(viewMode: .fixedUp).contains(where: { validParentTokens.contains($0.tokenKind) })
         })
         if let nextToken = validChild?.nextToken, validParentTokens.contains(nextToken.tokenKind) || nextToken.tokenKind.isIdentifier {
             return nextToken.text

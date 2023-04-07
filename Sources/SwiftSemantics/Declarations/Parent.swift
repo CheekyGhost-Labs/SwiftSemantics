@@ -47,7 +47,7 @@ public struct Parent: Equatable, Hashable, Codable {
         var workingTokenKind: TokenKind?
         if let tokenKind = node.firstToken?.tokenKind, Self.validParentTokens.contains(tokenKind) {
             workingTokenKind = tokenKind
-        } else if let matchingChild = node.tokens.first(where: { childToken in return Self.validParentTokens.contains(childToken.tokenKind) }) {
+        } else if let matchingChild = node.tokens(viewMode: .fixedUp).first(where: { childToken in return Self.validParentTokens.contains(childToken.tokenKind) }) {
             workingTokenKind = matchingChild.tokenKind
         }
         guard let targetKind = workingTokenKind else {
@@ -59,11 +59,7 @@ public struct Parent: Equatable, Hashable, Codable {
             guard let classNode = ClassDeclSyntax(node) else { return nil }
             attributes = classNode.attributes?.compactMap{ $0.as(AttributeSyntax.self) }.map { Attribute($0) } ?? []
             modifiers = classNode.modifiers?.map { Modifier($0) } ?? []
-            #if swift(>=5.5)
-            keyword = classNode.classOrActorKeyword.text.trimmed
-            #else
             keyword = classNode.classKeyword.text.trimmed
-            #endif
             name = classNode.identifier.text.trimmed
         case .enumKeyword:
             guard let enumNode = EnumDeclSyntax(node) else { return nil }

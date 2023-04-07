@@ -37,7 +37,7 @@ extension Modifier: ExpressibleBySyntax {
     /// Creates an instance initialized with the given syntax node.
     public init(_ node: DeclModifierSyntax) {
         name = node.name.text.trimmed
-        detail = node.detail?.description
+        detail = node.detail?.description.replacingOccurrences(of: "[\\(\\)]", with:  "", options: .regularExpression).trimmed
     }
 }
 

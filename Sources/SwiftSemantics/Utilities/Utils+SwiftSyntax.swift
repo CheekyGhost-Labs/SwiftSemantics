@@ -12,11 +12,11 @@ extension Utils {
     enum SwiftSyntax {
 
         static func getOptionalChild(_ syntax: SyntaxProtocol?) -> OptionalTypeSyntax? {
-            syntax?.children.compactMap({ OptionalTypeSyntax($0._syntaxNode) }).first
+            syntax?.children(viewMode: .fixedUp).compactMap({ OptionalTypeSyntax($0._syntaxNode) }).first
         }
 
         static func getTupleChild(_ syntax: SyntaxProtocol?) -> SyntaxProtocol? {
-            syntax?.children.first(where: {
+            syntax?.children(viewMode: .fixedUp).first(where: {
                 $0.syntaxNodeType == TupleTypeSyntax.self ||
                 $0.syntaxNodeType == TupleTypeElementListSyntax.self ||
                 $0.syntaxNodeType == TupleTypeElementSyntax.self
@@ -24,7 +24,7 @@ extension Utils {
         }
 
         static func isVariableTupleDeclarationOptional(_ node: PatternBindingSyntax) -> Bool {
-            guard let typeSyntax = node.children.compactMap({ TypeAnnotationSyntax($0._syntaxNode) }).first else { return false }
+            guard let typeSyntax = node.children(viewMode: .fixedUp).compactMap({ TypeAnnotationSyntax($0._syntaxNode) }).first else { return false }
             if getOptionalChild(typeSyntax) != nil { return true }
             // Root optional not found - iterate through expected child variations
             var nextChild = getTupleChild(typeSyntax)

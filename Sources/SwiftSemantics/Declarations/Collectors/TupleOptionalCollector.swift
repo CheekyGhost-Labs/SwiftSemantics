@@ -19,7 +19,7 @@ class TupleOptionalCollector: Collector {
     // MARK: - Helpers
 
     static func collect(_ node: Syntax) -> Bool {
-        let collector = TupleOptionalCollector()
+        let collector = TupleOptionalCollector(viewMode: .fixedUp)
         collector.walk(node)
         return collector.isOptional ?? false
     }

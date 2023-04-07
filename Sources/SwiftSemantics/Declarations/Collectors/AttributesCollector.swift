@@ -12,7 +12,7 @@ class AttributesCollector: Collector {
     // MARK: - Convenience
 
     static func collect(_ node: SyntaxProtocol) -> [Attribute] {
-        let collector = AttributesCollector()
+        let collector = AttributesCollector(viewMode: .fixedUp)
         collector.walk(node)
         return collector.attributes ?? []
     }
@@ -56,7 +56,7 @@ class AttributesCollector: Collector {
     }
 
     override func visit(_ node: AttributeListSyntax) -> SyntaxVisitorContinueKind {
-        attributes = node.children.compactMap { $0.as(AttributeSyntax.self) }.map(Attribute.init)
+        attributes = node.children(viewMode: .fixedUp).compactMap { $0.as(AttributeSyntax.self) }.map(Attribute.init)
         return .skipChildren
     }
 

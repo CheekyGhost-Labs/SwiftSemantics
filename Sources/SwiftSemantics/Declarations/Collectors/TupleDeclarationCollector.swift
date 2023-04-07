@@ -15,7 +15,7 @@ class TupleDeclarationCollector: SyntaxVisitor {
     // MARK: - Helpers
     
     static func collect(_ node: Syntax) -> TupleDeclaration? {
-        let collector = TupleDeclarationCollector()
+        let collector = TupleDeclarationCollector(viewMode: .fixedUp)
         collector.walk(node)
         return collector.result
     }
@@ -24,7 +24,7 @@ class TupleDeclarationCollector: SyntaxVisitor {
 
     override func visit(_ node: TupleTypeSyntax) -> SyntaxVisitorContinueKind {
         guard result == nil else { return .skipChildren }
-        let embeddedLists = node.children.filter { $0.syntaxNodeType == TupleTypeElementListSyntax.self }
+        let embeddedLists = node.children(viewMode: .fixedUp).filter { $0.syntaxNodeType == TupleTypeElementListSyntax.self }
         if embeddedLists.count == 1, TupleTypeElementListSyntax(embeddedLists[0]._syntaxNode) != nil {
             return .visitChildren
         }

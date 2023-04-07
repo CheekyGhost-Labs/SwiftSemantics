@@ -15,7 +15,7 @@ class ClosureDeclarationCollector: SyntaxVisitor {
     // MARK: - Helpers
     
     static func collect(_ node: Syntax) -> ClosureDeclaration? {
-        let collector = ClosureDeclarationCollector()
+        let collector = ClosureDeclarationCollector(viewMode: .fixedUp)
         collector.walk(node)
         return collector.result
     }

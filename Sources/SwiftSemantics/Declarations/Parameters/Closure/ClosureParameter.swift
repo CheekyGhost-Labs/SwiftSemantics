@@ -62,6 +62,12 @@ public struct ClosureParameter: ParameterType, ClosureType {
         let inputParameters = ClosureArgumentCollector.collectInputs(node)
         inputs = inputParameters.parameters
         inputType = components.input
+        if inputType.hasPrefix("(") {
+            inputType = String(inputType.dropFirst())
+        }
+        if inputType.hasSuffix(")") {
+            inputType = String(inputType.dropLast())
+        }
         isVoidInput = inputParameters.isVoid
         let outputParameters = ClosureArgumentCollector.collectOutputs(node)
         outputs = outputParameters.parameters
@@ -93,7 +99,7 @@ public struct ClosureParameter: ParameterType, ClosureType {
     // MARK: - Lifecycle Utilities
 
     func resolveClosureComponents(from node: FunctionTypeSyntax) -> (input: String, output: String) {
-        let description = node.children.map(\.description).joined()
+        let description = node.children(viewMode: .fixedUp).map(\.description).joined()
         let components = description.components(separatedBy: "->")
         let input = (components.first ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let output = (components.last ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -119,7 +125,7 @@ public struct ClosureParameter: ParameterType, ClosureType {
         type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
         defaultArgument = node.defaultArgument?.value.description.trimmed
-        isInOut = node.type?.tokens.contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
+        isInOut = node.type?.tokens(viewMode: .fixedUp).contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
         isOptional = Utils.isTypeOptional(type)
         preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
         typeWithoutAttributes = Utils.stripAttributes(from: type)

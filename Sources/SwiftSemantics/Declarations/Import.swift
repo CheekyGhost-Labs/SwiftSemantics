@@ -31,7 +31,7 @@ extension Import: ExpressibleBySyntax {
         modifiers = node.modifiers?.map { Modifier($0) } ?? []
         keyword = node.importTok.text.trimmed
         kind = node.importKind?.text.trimmed
-        pathComponents = node.path.tokens.filter { $0.tokenKind != .period }.map { $0.text.trimmed }
+        pathComponents = node.path.tokens(viewMode: .fixedUp).filter { $0.tokenKind != .period }.map { $0.text.trimmed }
     }
 }
 

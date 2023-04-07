@@ -34,7 +34,7 @@ class ClosureArgumentCollector: Collector {
 
     required init(_ node: FunctionTypeSyntax) {
         self.node = node
-        super.init()
+        super.init(viewMode: .fixedUp)
     }
 
     // MARK: - Helpers
@@ -121,7 +121,7 @@ class ClosureInputParameterCollector: ClosureArgumentCollector {
 
     override func visit(_ node: TupleTypeElementListSyntax) -> SyntaxVisitorContinueKind {
         guard !arrowDetected else { return .skipChildren }
-        if node.children.count == 1, node.children.first?.syntaxNodeType == TupleTypeElementSyntax.self {
+        if node.children(viewMode: .fixedUp).count == 1, node.children(viewMode: .fixedUp).first?.syntaxNodeType == TupleTypeElementSyntax.self {
             let parameter = TupleParameter(node)
             // Because why not someone might declare a closure as `((Void) -> String?)` which swift treats as `(() -> String?)` which is `()`
             // This declaration is **technically** a tuple from a syntax perspective, for a closure we want to treat it as a single parameter with a `Void` type
@@ -167,7 +167,7 @@ class ClosureOutputParameterCollector: ClosureArgumentCollector {
         }
         // In any wrapped scenario the first `tuple` is the container for result elements. These arguments
         // should be essentially pulled out into the collection rather than be treated as a single tuple output.
-        let embeddedLists = node.children.filter { $0.syntaxNodeType == TupleTypeElementListSyntax.self }
+        let embeddedLists = node.children(viewMode: .fixedUp).filter { $0.syntaxNodeType == TupleTypeElementListSyntax.self }
         if embeddedLists.count == 1, let listNode = TupleTypeElementListSyntax(embeddedLists[0]._syntaxNode) {
             let parameter = TupleParameter(listNode)
             if parameter.arguments.count == 1 {
