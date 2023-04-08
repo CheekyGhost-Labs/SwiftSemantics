@@ -1,6 +1,7 @@
 # SwiftSemantics
 
-![CI][ci badge]
+#### Note:
+This repo is a clone of the now archived [SwiftSemantics Project](https://github.com/SwiftDocOrg/SwiftSemantics). Had some annoyances around PR's with an archived repo, so opted to duplicate it.
 
 SwiftSemantics is a package that lets you
 parse Swift code into its constituent declarations.
