@@ -81,7 +81,7 @@ public struct ClosureDeclaration: ClosureType, Codable, Hashable, Equatable, Cus
     }
 
     func resolveClosureComponents(from node: FunctionTypeSyntax) -> (input: String, output: String) {
-        // Note: Until can drop macOS 13 will just use components separated + hacky bs to resolve these properly
+        // Note: Until ready to drop macOS 12 will just use components separated + hacky bs to resolve these properly
         let description = node.children(viewMode: .fixedUp).map(\.description).joined()
         let components = description.components(separatedBy: "->")
         let input = (components.first ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
