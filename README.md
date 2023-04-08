@@ -1,7 +1,18 @@
 # SwiftSemantics
 
-#### Note:
+### Note:
 This repo is a clone of the now archived [SwiftSemantics Project](https://github.com/SwiftDocOrg/SwiftSemantics). Had some annoyances around PR's with an archived repo, so opted to duplicate it.
+
+
+### Workflows:
+
+|  Branch  |  Status  |
+|:---------|:------:|
+| main | [![Build and Test](https://github.com/CheekyGhost-Labs/SwiftSemantics/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/CheekyGhost-Labs/SwiftSemantics/actions/workflows/unit-tests.yml) |
+| develop | [![Build and Test](https://github.com/CheekyGhost-Labs/SwiftSemantics/actions/workflows/unit-tests.yml/badge.svg?branch=develop)](https://github.com/CheekyGhost-Labs/SwiftSemantics/actions/workflows/unit-tests.yml) |
+
+
+### SwiftSemantics Overview:
 
 SwiftSemantics is a package that lets you
 parse Swift code into its constituent declarations.
