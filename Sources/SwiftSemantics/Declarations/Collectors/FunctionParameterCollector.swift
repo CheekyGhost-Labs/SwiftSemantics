@@ -71,12 +71,14 @@ class FunctionParameterCollector: Collector {
     }
 
     override func visit(_ node: FunctionParameterSyntax) -> SyntaxVisitorContinueKind {
-        // If closure the parameter holds a closure parameter declaration - visit children to pick it up
-        if parameterContainsClosureChildNode(node) {
-            return .visitChildren
+        if let closure = ClosureParameterCollector.collect(node._syntaxNode) {
+            parameters.append(closure)
+        } else if let tuple = TupleParameterCollector.collect(node._syntaxNode) {
+            parameters.append(tuple)
+        } else {
+            let parameter = StandardParameter(node)
+            parameters.append(parameter)
         }
-        let parameter = StandardParameter(node)
-        parameters.append(parameter)
         return .skipChildren
     }
 
@@ -89,14 +91,15 @@ class FunctionParameterCollector: Collector {
     // MARK: - Helpers
     
     func parameterContainsClosureChildNode(_ node: FunctionParameterSyntax) -> Bool {
-        var nextToken: TokenSyntax? = node.firstToken
-        while nextToken != nil {
-            if nextToken?.parent?.syntaxNodeType == FunctionTypeSyntax.self {
-                return true
-            }
-            nextToken = nextToken?.nextToken
+        var result: Bool = false
+        if let optionalChild = node.children(viewMode: .fixedUp).first(where: { $0.syntaxNodeType == OptionalTypeSyntax.self }) {
+            result = ClosureParameterCollector.collect(optionalChild._syntaxNode) != nil
+        } else {
+            result = node.children(viewMode: .fixedUp).contains(where: {
+                ClosureParameterCollector.collect($0._syntaxNode) != nil
+            })
         }
-        return false
+        return result
     }
 
     func resolveParentTupleFromListSyntax(_ node: TupleTypeElementListSyntax) -> TupleTypeSyntax? {
