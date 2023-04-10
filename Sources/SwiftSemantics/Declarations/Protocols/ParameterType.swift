@@ -110,19 +110,26 @@ extension ParameterType {
     // MARK: - CustomStringConvertible
 
     public var description: String {
-        var description: String = (attributes.map { $0.description } + [name, secondName].compactMap { $0?.description }).joined(separator: " ")
-        if let type = type {
-            if name != nil || secondName != nil {
-                description += ": \(type)"
-            } else {
-                description += "\(type)"
-            }
-        }
+        let names = [name, secondName].compactMap { $0 }
+        let attributes = attributes.map { $0.description }
+        let type = typeWithoutAttributes ?? ""
 
-        if let defaultArgument = defaultArgument {
-            description += " = \(defaultArgument)"
+        var components: [String] = []
+        if !names.isEmpty {
+            let names = "\(names.joined(separator: " ")):"
+            components.append(names)
         }
-        return description
+        if !attributes.isEmpty {
+            components.append(attributes.joined(separator: " "))
+        }
+        if isInOut {
+            components.append("inout")
+        }
+        components.append(type)
+        if let defaultArgument = defaultArgument {
+            components.append("= \(defaultArgument)")
+        }
+        return components.joined(separator: " ").trimmed
     }
 
     /// Will return `true` when the parameter has the `@escaping` attribute.
