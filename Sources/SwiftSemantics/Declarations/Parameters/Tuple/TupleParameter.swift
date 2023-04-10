@@ -56,7 +56,10 @@ public struct TupleParameter: ParameterType, TupleType {
         typeWithoutAttributes = Utils.stripAttributes(from: type)
         // The tuple might be an element within a larger tuple, or simply a declaration type within a parameter set
         // If a parent `TupleTypeElementSyntax` can be resolved then it has parameter properties.
-        if let parent = resolveParentElementFromSyntax(node) {
+        // Assign parameter values if parent is present
+        if let parent = resolveParentFunctionSyntax(from: node._syntaxNode) {
+            assignParameterPropertiesFromFunctionParent(parent)
+        } else if let parent = resolveParentElementFromSyntax(node) {
             name = parent.name?.text
             secondName = parent.secondName?.text
             preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
@@ -72,6 +75,9 @@ public struct TupleParameter: ParameterType, TupleType {
         typeWithoutAttributes = node.description
         isOptional = Utils.isTypeOptional(type)
         typeWithoutAttributes = Utils.stripAttributes(from: type)
+        if let parent = resolveParentFunctionSyntax(from: node._syntaxNode) {
+            assignParameterPropertiesFromFunctionParent(parent)
+        }
     }
 
     // MARK: - Lifecycle: Helpers
@@ -82,5 +88,30 @@ public struct TupleParameter: ParameterType, TupleType {
             parent = nextParent
         }
         return TupleTypeElementSyntax(parent._syntaxNode)
+    }
+
+    func resolveParentFunctionSyntax(from node: Syntax) -> FunctionParameterSyntax? {
+        var parentNode = node.parent
+        while parentNode != nil {
+            if let parent = parentNode, parent.syntaxNodeType == FunctionParameterSyntax.self {
+                return FunctionParameterSyntax(parent._syntaxNode)
+            }
+            parentNode = parentNode?.parent
+        }
+        return nil
+    }
+
+    mutating func assignParameterPropertiesFromFunctionParent(_ node: FunctionParameterSyntax) {
+        // If a parent element can be found (holding parameter properties and attributes etc) - assign the values
+        attributes = AttributesCollector.collect(node)
+        name = node.firstName?.text.trimmed
+        secondName = node.secondName?.text.trimmed
+        type = node.type?.description.trimmed
+        variadic = node.ellipsis != nil
+        defaultArgument = node.defaultArgument?.value.description.trimmed
+        isInOut = node.type?.tokens(viewMode: .fixedUp).contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
+        isOptional = Utils.isTypeOptional(type)
+        preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
+        typeWithoutAttributes = Utils.stripAttributes(from: type)
     }
 }

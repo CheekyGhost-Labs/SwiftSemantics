@@ -203,6 +203,188 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "(Int) -> Void")
     }
 
+    func testFunctionWithClosureInput() throws {
+        let source = #"""
+        struct Sample {
+            func renderPerson(_ name: String, age: Int, _ handler: (() -> Void)) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input.count, 3)
+        // String
+        XCTAssertEqual(original.signature.input[0].name, "_")
+        XCTAssertEqual(original.signature.input[0].secondName, "name")
+        XCTAssertTrue(original.signature.input[0].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "String")
+        // Int
+        XCTAssertEqual(original.signature.input[1].name, "age")
+        XCTAssertEqual(original.signature.input[1].secondName, nil)
+        XCTAssertFalse(original.signature.input[1].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[1].typeWithoutAttributes, "Int")
+        // Closure
+        XCTAssertEqual(original.signature.input[2].name, "_")
+        XCTAssertEqual(original.signature.input[2].secondName, "handler")
+        XCTAssertTrue(original.signature.input[2].isLabelOmitted)
+        XCTAssertFalse(original.signature.input[2].isOptional)
+        XCTAssertFalse(original.signature.input[2].isEscaping)
+        XCTAssertEqual(original.signature.input[2].typeWithoutAttributes, "(() -> Void)")
+        let closureInput = try XCTUnwrap(original.signature.input[2] as? ClosureParameter)
+        XCTAssertEqual(closureInput.inputs.count, 0)
+        XCTAssertTrue(closureInput.isVoidInput)
+        XCTAssertTrue(closureInput.isVoidOutput)
+    }
+
+    func testFunctionWithEscapingClosureInput() throws {
+        let source = #"""
+        struct Sample {
+            func renderPerson(_ name: String, age: Int, _ handler: @escaping (() -> Void)) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input.count, 3)
+        // String
+        XCTAssertEqual(original.signature.input[0].name, "_")
+        XCTAssertEqual(original.signature.input[0].secondName, "name")
+        XCTAssertTrue(original.signature.input[0].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "String")
+        // Int
+        XCTAssertEqual(original.signature.input[1].name, "age")
+        XCTAssertEqual(original.signature.input[1].secondName, nil)
+        XCTAssertFalse(original.signature.input[1].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[1].typeWithoutAttributes, "Int")
+        // Closure
+        XCTAssertEqual(original.signature.input[2].name, "_")
+        XCTAssertEqual(original.signature.input[2].secondName, "handler")
+        XCTAssertTrue(original.signature.input[2].isLabelOmitted)
+        XCTAssertFalse(original.signature.input[2].isOptional)
+        XCTAssertTrue(original.signature.input[2].isEscaping)
+        XCTAssertEqual(original.signature.input[2].typeWithoutAttributes, "(() -> Void)")
+        let closureInput = try XCTUnwrap(original.signature.input[2] as? ClosureParameter)
+        XCTAssertEqual(closureInput.inputs.count, 0)
+        XCTAssertTrue(closureInput.isVoidInput)
+        XCTAssertTrue(closureInput.isVoidOutput)
+    }
+
+    func testFunctionWithOptionalClosureInput() throws {
+        let source = #"""
+        struct Sample {
+            func renderPerson(_ name: String, age: Int, _ handler: @escaping (() -> Void)?) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input.count, 3)
+        // String
+        XCTAssertEqual(original.signature.input[0].name, "_")
+        XCTAssertEqual(original.signature.input[0].secondName, "name")
+        XCTAssertTrue(original.signature.input[0].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "String")
+        // Int
+        XCTAssertEqual(original.signature.input[1].name, "age")
+        XCTAssertEqual(original.signature.input[1].secondName, nil)
+        XCTAssertFalse(original.signature.input[1].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[1].typeWithoutAttributes, "Int")
+        // Closure
+        XCTAssertEqual(original.signature.input[2].name, "_")
+        XCTAssertEqual(original.signature.input[2].secondName, "handler")
+        XCTAssertTrue(original.signature.input[2].isLabelOmitted)
+        XCTAssertTrue(original.signature.input[2].isOptional)
+        XCTAssertTrue(original.signature.input[2].isEscaping)
+        XCTAssertEqual(original.signature.input[2].typeWithoutAttributes, "(() -> Void)?")
+        let closureInput = try XCTUnwrap(original.signature.input[2] as? ClosureParameter)
+        XCTAssertEqual(closureInput.inputs.count, 0)
+        XCTAssertTrue(closureInput.isVoidInput)
+        XCTAssertTrue(closureInput.isVoidOutput)
+    }
+
+    func testFunctionWithTupleInput() throws {
+        let source = #"""
+        struct Sample {
+            func renderPerson(_ name: String, age: Int, _ handler: (name: String, age: Int)) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input.count, 3)
+        // String
+        XCTAssertEqual(original.signature.input[0].name, "_")
+        XCTAssertEqual(original.signature.input[0].secondName, "name")
+        XCTAssertTrue(original.signature.input[0].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "String")
+        // Int
+        XCTAssertEqual(original.signature.input[1].name, "age")
+        XCTAssertEqual(original.signature.input[1].secondName, nil)
+        XCTAssertFalse(original.signature.input[1].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[1].typeWithoutAttributes, "Int")
+        // Closure
+        XCTAssertEqual(original.signature.input[2].name, "_")
+        XCTAssertEqual(original.signature.input[2].secondName, "handler")
+        XCTAssertTrue(original.signature.input[2].isLabelOmitted)
+        XCTAssertFalse(original.signature.input[2].isOptional)
+        XCTAssertEqual(original.signature.input[2].typeWithoutAttributes, "(name: String, age: Int)")
+        let tupleInput = try XCTUnwrap(original.signature.input[2] as? TupleParameter)
+        XCTAssertEqual(tupleInput.arguments.count, 2)
+        XCTAssertEqual(tupleInput.arguments[0].name, "name")
+        XCTAssertEqual(tupleInput.arguments[0].typeWithoutAttributes, "String")
+        XCTAssertEqual(tupleInput.arguments[1].name, "age")
+        XCTAssertEqual(tupleInput.arguments[1].typeWithoutAttributes, "Int")
+    }
+
+    func testFunctionWithOptionalTupleInput() throws {
+        let source = #"""
+        struct Sample {
+            func renderPerson(_ name: String, age: Int, _ handler: (name: String, age: Int)?) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+
+        let original = declarations[0]
+        XCTAssertEqual(original.signature.input.count, 3)
+        // String
+        XCTAssertEqual(original.signature.input[0].name, "_")
+        XCTAssertEqual(original.signature.input[0].secondName, "name")
+        XCTAssertTrue(original.signature.input[0].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[0].typeWithoutAttributes, "String")
+        // Int
+        XCTAssertEqual(original.signature.input[1].name, "age")
+        XCTAssertEqual(original.signature.input[1].secondName, nil)
+        XCTAssertFalse(original.signature.input[1].isLabelOmitted)
+        XCTAssertEqual(original.signature.input[1].typeWithoutAttributes, "Int")
+        // Closure
+        XCTAssertEqual(original.signature.input[2].name, "_")
+        XCTAssertEqual(original.signature.input[2].secondName, "handler")
+        XCTAssertTrue(original.signature.input[2].isLabelOmitted)
+        XCTAssertTrue(original.signature.input[2].isOptional)
+        XCTAssertEqual(original.signature.input[2].typeWithoutAttributes, "(name: String, age: Int)?")
+        let tupleInput = try XCTUnwrap(original.signature.input[2] as? TupleParameter)
+        XCTAssertEqual(tupleInput.arguments.count, 2)
+        XCTAssertEqual(tupleInput.arguments[0].name, "name")
+        XCTAssertEqual(tupleInput.arguments[0].typeWithoutAttributes, "String")
+        XCTAssertEqual(tupleInput.arguments[1].name, "age")
+        XCTAssertEqual(tupleInput.arguments[1].typeWithoutAttributes, "Int")
+    }
+
     static var allTests = [
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
