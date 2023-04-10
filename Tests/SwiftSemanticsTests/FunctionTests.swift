@@ -407,17 +407,18 @@ final class FunctionTests: XCTestCase {
     func testFunctionWithClosureInputWithInoutArgument() throws {
         let source = #"""
         struct Sample {
-            func performOperation(_ handler: (inout [String], Int) -> Void) {}
+            func performOperation(_ handler: @escaping (inout [String], Int) -> Void) {}
         }
         """#
 
         let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
 
         XCTAssertEqual(declarations.count, 1)
+        XCTAssertEqual(declarations[0].description, "func performOperation(_ handler: @escaping (inout [String], Int) -> Void)")
         XCTAssertEqual(declarations[0].signature.input.count, 1)
         XCTAssertEqual(declarations[0].signature.input[0].name, "_")
         XCTAssertEqual(declarations[0].signature.input[0].secondName, "handler")
-        XCTAssertEqual(declarations[0].signature.input[0].type, "(inout [String], Int) -> Void")
+        XCTAssertEqual(declarations[0].signature.input[0].type, "@escaping (inout [String], Int) -> Void")
         XCTAssertEqual(declarations[0].signature.input[0].typeWithoutAttributes, "(inout [String], Int) -> Void")
         XCTAssertFalse(declarations[0].signature.input[0].isOptional)
         XCTAssertFalse(declarations[0].signature.input[0].isInOut)
