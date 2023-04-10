@@ -36,15 +36,12 @@ public struct StandardParameter: ParameterType {
 
     public init(_ node: FunctionParameterSyntax) {
         attributes = node.attributes?.compactMap{ $0.as(AttributeSyntax.self) }.map { Attribute($0) } ?? []
+        type = node.type?.description.trimmed
         name = node.firstName?.text.trimmed
         secondName = node.secondName?.text.trimmed
-        type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
         if !variadic, node.children(viewMode: .fixedUp).contains(where: { $0.syntaxNodeType == PackExpansionTypeSyntax.self }) {
             variadic = true
-        }
-        if variadic {
-            type = type?.replacingOccurrences(of: "...", with: "")
         }
         defaultArgument = node.defaultArgument?.value.description.trimmed
         isInOut = node.type?.tokens(viewMode: .fixedUp).contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
@@ -105,6 +102,20 @@ public struct StandardParameter: ParameterType {
             }
         }
         self.isOptional = isOptional
+    }
+
+    public init(_ node: AttributedTypeSyntax) {
+        defaultArgument = nil
+        variadic = false
+        isInOut = false
+        isOptional = false
+        preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
+        type = node.baseType.description
+        typeWithoutAttributes = Utils.stripAttributes(from: type)
+        isInOut = (node.baseType.previousToken?.tokenKind == .inoutKeyword)
+        if let lastToken = node.baseType.children(viewMode: .fixedUp).last?.lastToken, lastToken.tokenKind == .postfixQuestionMark {
+            isOptional = true
+        }
     }
 
     func resolveParentElementFromSyntax(_ node: SimpleTypeIdentifierSyntax) -> TupleTypeElementSyntax? {

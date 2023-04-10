@@ -1,5 +1,6 @@
 import Foundation
 import SwiftSyntax
+import SwiftSyntaxBuilder
 
 /// A function declaration.
 public struct Function: Declaration, Hashable, Codable {
