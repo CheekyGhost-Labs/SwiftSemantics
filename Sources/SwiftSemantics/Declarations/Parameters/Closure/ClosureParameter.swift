@@ -125,7 +125,7 @@ public struct ClosureParameter: ParameterType, ClosureType {
         type = node.type?.description.trimmed
         variadic = node.ellipsis != nil
         defaultArgument = node.defaultArgument?.value.description.trimmed
-        isInOut = node.type?.tokens(viewMode: .fixedUp).contains(where: { $0.tokenKind == .inoutKeyword }) ?? false
+        isInOut = (node.type?.previousToken?.tokenKind == .inoutKeyword)
         isOptional = Utils.isTypeOptional(type)
         preferredName = Utils.getPreferredName(firstName: name, secondName: secondName, labelOmitted: Utils.isLabelOmitted(name))
         typeWithoutAttributes = Utils.stripAttributes(from: type)

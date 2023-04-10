@@ -35,7 +35,7 @@ enum Utils {
     /// Will return the `typeAnnotation` without any attributes (such as `@escaping`). If the `typeAnnotation` is `nil` then `nil` will also be returned.
     static func stripAttributes(from typeString: String?) -> String? {
         guard let input = typeString, !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
-        return input.replacingOccurrences(of: "(\\@[\\w\\(\\)\\,]{1,}\\s{0,})|(inout\\s{0,})", with: "", options: .regularExpression)
+        return input.replacingOccurrences(of: "(\\@[\\w\\(\\)\\,]{1,}\\s{0,})|^\\s{0,}(inout\\s{0,})", with: "", options: .regularExpression)
     }
 
     static func isVoidType(_ type: String?) -> Bool {

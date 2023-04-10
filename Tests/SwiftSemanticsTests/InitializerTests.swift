@@ -18,7 +18,7 @@ final class InitializerTests: XCTestCase {
         XCTAssertEqual(initializer.parameters.count, 1)
         XCTAssertEqual(initializer.parameters[0].name, "names")
         XCTAssertNil(initializer.parameters[0].secondName)
-        XCTAssertEqual(initializer.parameters[0].type, "String")
+        XCTAssertEqual(initializer.parameters[0].type, "String...")
         XCTAssertTrue(initializer.parameters[0].variadic)
         XCTAssertEqual(initializer.throwsOrRethrowsKeyword, "throws")
         XCTAssertEqual(initializer.parent, Parent(modifiers: [Modifier(name: "public", detail: nil)], keyword: "class", name: "Person"))

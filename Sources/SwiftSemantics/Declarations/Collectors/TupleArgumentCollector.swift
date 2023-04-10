@@ -58,6 +58,12 @@ class TupleArgumentCollector: Collector {
         return .visitChildren
     }
 
+    override func visit(_ node: AttributedTypeSyntax) -> SyntaxVisitorContinueKind {
+        let parameter = StandardParameter(node)
+        parameters.append(parameter)
+        return .skipChildren
+    }
+
     override func visit(_ node: FunctionTypeSyntax) -> SyntaxVisitorContinueKind {
         let parameter = ClosureParameter(node)
         parameters.append(parameter)

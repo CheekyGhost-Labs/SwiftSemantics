@@ -385,6 +385,51 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(tupleInput.arguments[1].typeWithoutAttributes, "Int")
     }
 
+    func testFunctionWithInoutInput() throws {
+        let source = #"""
+        struct Sample {
+            func performOperation(with names: inout [String]?) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+        XCTAssertEqual(declarations[0].signature.input.count, 1)
+        XCTAssertEqual(declarations[0].signature.input[0].name, "with")
+        XCTAssertEqual(declarations[0].signature.input[0].secondName, "names")
+        XCTAssertEqual(declarations[0].signature.input[0].type, "inout [String]?")
+        XCTAssertEqual(declarations[0].signature.input[0].typeWithoutAttributes, "[String]?")
+        XCTAssertTrue(declarations[0].signature.input[0].isOptional)
+        XCTAssertTrue(declarations[0].signature.input[0].isInOut)
+    }
+
+    func testFunctionWithClosureInputWithInoutArgument() throws {
+        let source = #"""
+        struct Sample {
+            func performOperation(_ handler: (inout [String], Int) -> Void) {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+        XCTAssertEqual(declarations[0].signature.input.count, 1)
+        XCTAssertEqual(declarations[0].signature.input[0].name, "_")
+        XCTAssertEqual(declarations[0].signature.input[0].secondName, "handler")
+        XCTAssertEqual(declarations[0].signature.input[0].type, "(inout [String], Int) -> Void")
+        XCTAssertEqual(declarations[0].signature.input[0].typeWithoutAttributes, "(inout [String], Int) -> Void")
+        XCTAssertFalse(declarations[0].signature.input[0].isOptional)
+        XCTAssertFalse(declarations[0].signature.input[0].isInOut)
+        let closure = try XCTUnwrap(declarations[0].signature.input[0] as? ClosureParameter)
+        XCTAssertFalse(closure.isVoidInput)
+        XCTAssertTrue(closure.isVoidOutput)
+        XCTAssertTrue(closure.inputs[0].isInOut)
+        XCTAssertEqual(closure.inputs[0].type, "[String]")
+        XCTAssertFalse(closure.inputs[1].isInOut)
+        XCTAssertEqual(closure.inputs[1].type, "Int")
+    }
+
     static var allTests = [
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
@@ -392,4 +437,3 @@ final class FunctionTests: XCTestCase {
         ("testFunctionWithInoutAttributesWillStrip", testFunctionWithInoutAttributesWillStrip),
     ]
 }
-

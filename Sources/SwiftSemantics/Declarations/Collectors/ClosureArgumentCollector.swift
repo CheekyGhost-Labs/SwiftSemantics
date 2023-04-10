@@ -69,6 +69,16 @@ class ClosureArgumentCollector: Collector {
         arguments.append(parameter)
         return .skipChildren
     }
+
+    override func visit(_ node: AttributedTypeSyntax) -> SyntaxVisitorContinueKind {
+        let parameter = StandardParameter(node)
+        arguments.append(parameter)
+        return .skipChildren
+    }
+
+    override func visit(_ node: InOutExprSyntax) -> SyntaxVisitorContinueKind {
+        return .visitChildren
+    }
     
     override func visit(_ node: TokenSyntax) -> SyntaxVisitorContinueKind {
         if node.tokenKind == .arrow {
