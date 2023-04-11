@@ -36,6 +36,7 @@ public struct StandardParameter: ParameterType {
 
     public init(_ node: FunctionParameterSyntax) {
         attributes = node.attributes?.compactMap{ $0.as(AttributeSyntax.self) }.map { Attribute($0) } ?? []
+        attributes = AttributesCollector.collect(node)
         type = node.type?.description.trimmed
         name = node.firstName?.text.trimmed
         secondName = node.secondName?.text.trimmed
@@ -51,6 +52,7 @@ public struct StandardParameter: ParameterType {
     }
 
     public init(_ node: SimpleTypeIdentifierSyntax) {
+        attributes = AttributesCollector.collect(node)
         name = nil
         secondName = nil
         variadic = false
@@ -74,6 +76,7 @@ public struct StandardParameter: ParameterType {
     }
 
     public init(_ node: TupleTypeElementListSyntax.Element) {
+        attributes = AttributesCollector.collect(node)
         name = node.name?.text
         secondName = node.secondName?.text
         type = node.type.description.trimmed
@@ -105,6 +108,7 @@ public struct StandardParameter: ParameterType {
     }
 
     public init(_ node: AttributedTypeSyntax) {
+        attributes = AttributesCollector.collect(node)
         defaultArgument = nil
         variadic = false
         isInOut = false
