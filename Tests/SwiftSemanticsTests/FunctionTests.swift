@@ -431,6 +431,26 @@ final class FunctionTests: XCTestCase {
         XCTAssertEqual(closure.inputs[1].type, "Int")
     }
 
+    func testFunctionWithClosureAliasInputWithInoutArgument() throws {
+        let source = #"""
+        struct Sample {
+            func performOperation(_ handler: @escaping TestClosureAlias) -> TestClosureAlias {}
+        }
+        """#
+
+        let declarations = try SyntaxParser.declarations(of: Function.self, source: source)
+
+        XCTAssertEqual(declarations.count, 1)
+        XCTAssertEqual(declarations[0].description, "func performOperation(_ handler: @escaping TestClosureAlias) -> TestClosureAlias")
+        XCTAssertEqual(declarations[0].signature.input.count, 1)
+        XCTAssertEqual(declarations[0].signature.input[0].name, "_")
+        XCTAssertEqual(declarations[0].signature.input[0].secondName, "handler")
+        XCTAssertEqual(declarations[0].signature.input[0].type, "@escaping TestClosureAlias")
+        XCTAssertEqual(declarations[0].signature.input[0].typeWithoutAttributes, "TestClosureAlias")
+        XCTAssertFalse(declarations[0].signature.input[0].isOptional)
+        XCTAssertFalse(declarations[0].signature.input[0].isInOut)
+    }
+
     static var allTests = [
         ("testComplexFunctionDeclaration", testComplexFunctionDeclaration),
         ("testOperatorFunctionDeclarations", testOperatorFunctionDeclarations),
