@@ -1,5 +1,13 @@
 # SwiftSemantics
 
+# ARCHIVED:
+
+This repo has been archived as I re-wrote the concept as a new project named [SyntaxSparrow Project](https://github.com/CheekyGhost-Labs/SyntaxSparrow)
+
+Please use [SyntaxSparrow Project](https://github.com/CheekyGhost-Labs/SyntaxSparrow), however please note that Declarations are no longer flattened, they are heirachial to avoid having to put a basic `parent` type etc.
+
+Happy Coding 🙂
+
 ### Note:
 This repo is a clone of the now archived [SwiftSemantics Project](https://github.com/SwiftDocOrg/SwiftSemantics). Had some annoyances around PR's with an archived repo, so opted to duplicate it.
 
